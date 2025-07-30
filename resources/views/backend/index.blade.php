@@ -37,7 +37,62 @@
                     </form>
                 </td>
             </tr>
-            @endforeach
+            <div class="modal fade" id="detailModal{{ $pendaftar->id }}" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Detail Pendaftar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row">
+          <dt class="col-sm-4">Nama Lengkap</dt>
+          <dd class="col-sm-8">{{ $pendaftar->nama }}</dd>
+
+          <dt class="col-sm-4">NIS/NIM</dt>
+          <dd class="col-sm-8">{{ $pendaftar->nis_nim }}</dd>
+
+          <dt class="col-sm-4">Sekolah / Kampus</dt>
+          <dd class="col-sm-8">{{ $pendaftar->asal_sekolah }}</dd>
+
+          <dt class="col-sm-4">Jurusan</dt>
+          <dd class="col-sm-8">{{ $pendaftar->jurusan }}</dd>
+
+          <dt class="col-sm-4">Tujuan Magang</dt>
+          <dd class="col-sm-8">{{ $pendaftar->tujuan_magang }}</dd>
+
+          <dt class="col-sm-4">Unduh CV</dt>
+          <dd class="col-sm-8">
+            <a href="{{ asset('storage/'.$pendaftar->file_cv) }}" target="_blank" class="btn btn-sm btn-outline-warning">Unduh CV</a>
+          </dd>
+        </dl>
+
+        <form method="POST" action="{{ route('admin.pendaftar.updateStatus', $pendaftar->id) }}">
+          @csrf
+          @method('PATCH')
+
+          <div class="mb-3">
+            <label for="status" class="form-label">Status Pendaftaran</label>
+            <select class="form-select" name="status" required>
+              <option value="">- Pilih status pendaftaran -</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Diterima">Diterima</option>
+              <option value="Ditolak">Ditolak</option>
+              <option value="Jadwal Dirubah">Jadwal Dirubah</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="alasan" class="form-label">Alasan</label>
+            <textarea class="form-control" name="alasan" rows="2"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+@endforeach
         </tbody>
     </table>
 </div>

@@ -24,6 +24,9 @@ return new class extends Migration
         $table->string('no_hp');
         $table->date('tanggal_mulai');
         $table->date('tanggal_selesai');
+        $table->string('status')->nullable();
+        $table->text('alasan')->nullable();
+        $table->string('surat_balasan')->nullable();
         $table->timestamps();
     });
 }

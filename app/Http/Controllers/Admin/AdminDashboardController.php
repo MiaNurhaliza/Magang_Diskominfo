@@ -19,8 +19,8 @@ class AdminDashboardController extends Controller
         $ditolak = Status::where('status', 'ditolak')->count();
         $pesertaAktif = Status::where('status', 'diterima')->count(); // anggap diterima = aktif
         // $laporanAkhir = Biodata::whereNotNull('laporan_akhir')->count();
-        $laporanAkhir = Biodata::whereNotNull('file_laporan')->count();
-        $sertifikat = Biodata::whereNotNull('sertifikat')->count();
+        //$laporanAkhir = Biodata::whereNotNull('file_laporan')->count();
+        //$sertifikat = Biodata::whereNotNull('sertifikat')->count();
 
         // Aktivitas hari ini
         $today = now()->toDateString();
@@ -30,13 +30,13 @@ class AdminDashboardController extends Controller
             $query->where('tanggal', $today);
         }])->get();
 
-        return view('admin.dashboard', compact(
+        return view('backend.dashboard', compact(
             'totalPendaftar',
             'diterima',
             'ditolak',
             'pesertaAktif',
-            'laporanAkhir',
-            'sertifikat',
+            // 'laporanAkhir',
+            // 'sertifikat',
             'aktivitasHariIni'
         ));
     }

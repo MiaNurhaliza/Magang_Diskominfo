@@ -14,4 +14,9 @@ class Absensi extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function biodata()
+    {
+    return $this->belongsTo(Biodata::class);
+    }
 }

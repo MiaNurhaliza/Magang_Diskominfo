@@ -59,4 +59,8 @@ public function status() {
     return $this->hasOne(StatusPendaftaran::class);
 }
 
+public function biodata() {
+    return $this->hasOne(Biodata::class);
+}
+
 }

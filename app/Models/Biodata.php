@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Biodata extends Model
 {
     protected $table = 'biodatas';
-
+    
     public function absensi()
     {
         return $this->hasMany(Absensi::class, 'biodata_id');
@@ -26,4 +26,22 @@ class Biodata extends Model
     {
         return $this->hasOne(Laporan_akhir::class, 'biodata_id');
     }
+    public function dokumen()
+    {
+    return $this->hasOne(Dokumen::class, 'user_id', 'user_id');
+    }
+    public function user()
+    {
+        return $this->belongsto(User::class);
+    }
+    protected $fillable = [
+    'nama_lengkap',
+    'asal_sekolah',
+    'jurusan',
+    'tanggal_mulai',
+    'tanggal_selesai',
+    // tambahkan kolom lain jika ada yang ikut di-update
+];
+
+
 }

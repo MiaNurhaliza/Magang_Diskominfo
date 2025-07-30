@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('sertifikats', function (Blueprint $table) {
             $table->id();
-            $table->foreigId(user_id)->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
-            $table->date('file_sertifikat');
+            $table->string('file_sertifikat');
             $table->timestamps();
         });
     }

@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Laporan;
+use App\Models\LaporanAkhir;
 
 class LaporanBackendController extends Controller
 {
     public function index()
     {
-        $laporans = Laporan::with('user')->latest()->get();
-        return view('admin.laporan.index', compact('laporans'));
+        $laporans = LaporanAkhir::with('user')->latest()->get();
+        return view('backend.laporan_akhir.index', compact('laporans'));
     }
 
     public function downloadFile($type, $id)
     {
-        $laporan = Laporan::findOrFail($id);
-        $path = $type === 'laporan' ? $laporan->file_laporan : $laporan->file_nilai_magang;
+        $laporans = LaporanAkhir::findOrFail($id);
+        $path = $type === 'laporan' ? $laporans->file_laporan : $laporans->file_nilai_magang;
 
         return response()->download(storage_path("app/public/{$path}"));
     }
