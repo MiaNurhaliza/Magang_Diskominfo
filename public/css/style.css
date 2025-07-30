@@ -1,0 +1,351 @@
+/* html {
+  scroll-behavior: smooth;
+} */
+
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.navbar .bg-primary{
+    border-top-left-radius: 50px;
+}
+
+.nav-link {
+    position: relative;
+    padding-bottom: 4px;
+    color: #000;
+    transition: color 0.3s;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #007bff; /* atau warna biru khas */
+    transition: all 0.3s ease;
+}
+
+
+
+/* Header */
+header {
+  background-color: #1465FF;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  flex-wrap: wrap;
+}
+
+.logo h1 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.logo p {
+  font-size: 14px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.login a {
+  background-color: white;
+  color: #1465FF;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  padding: 80px 60px;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.hero-section {
+    background-image: url('/images/Vector 1.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: top right;
+}
+
+.hero-illustration {
+    margin-right: auto;
+    margin-left: 400px; /* coba angka lain seperti -60px jika ingin lebih ekstrim */
+}
+
+
+.hero-bg {
+  position: absolute;
+  max-width: 40%;
+  height: auto;
+  min-width: 200px;
+  top: 0;
+  left: 0;
+  width: 35%;        
+  z-index: 0;
+  object-fit: contain;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hero-text {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-text h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.hero-text p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.hero-image {
+  flex: 1;
+  text-align: center;
+}
+
+.hero-image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.about-section {
+    background-image: url('/images/gradasi.png');
+    background-size: cover;
+    background-position: top right;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 50px;
+}
+.about-section {
+    background-image: url('/images/gradasi.png');
+    background-size: cover;
+    background-position: top right;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 50px;
+}
+
+.vector-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    max-width: none;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+    object-position: top left;
+}
+
+/* Alur Section */
+.step-box {
+    background-color: #1465FF;
+    border-radius: 12px;
+    padding: 20px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-icon {
+    height: 40px;
+    filter: brightness(0) invert(1); /* ubah icon jadi putih */
+}
+
+.step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1465FF;
+    margin-bottom: 8px;
+}
+
+.step-desc {
+    font-size: 12px;
+    color: black;
+    max-width: 180px;
+}
+
+/* .step-box:hover {
+    transform: translateY(-4px);
+} */
+
+.step-line-horizontal {
+    width: 200px;
+    height: 3px;
+    background-color: #1465FF;
+    margin: 0 10px;
+}
+
+.step-line-vertical {
+    width: 3px;
+    height: 100px;
+    background-color: #1465FF;
+    margin: 2px auto;
+}
+
+.step-line-vertical-between {
+    position: absolute;
+    top: 80px;           /* Jarak dari ikon "Upload surat" ke garis */
+    left: 50%;           /* Tengah dari kotak */
+    transform: translateX(-50%);
+    width: 2px;
+    height: 60px;        /* Panjang garis */
+    background-color: #0f46b3;
+}
+
+
+/* About Section */
+.about {
+  padding: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 40px;
+}
+
+.about-image {
+  flex: 1;
+  text-align: center;
+}
+
+.about-image img {
+  max-width: 100%;
+  height: auto;
+}
+.gradasi-bg {
+    background-image: url('/images/gradasi.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: top right;
+}
+
+.about-text {
+  flex: 1;
+  max-width: 600px;
+}
+
+.about-text h2 {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.about-text p {
+  margin-bottom: 15px;
+}
+
+.gradasi-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    background: radial-gradient(circle at top left, #cfe3ff 0%, transparent 70%);
+    z-index: 0;
+}
+
+.figure-overlay {
+    position: relative;
+    z-index: 2;
+    margin-top: -50px; 
+    max-width: 300px;
+}
+
+/* Footer */
+footer {
+  background-color: #0f46b3;
+  color: white;
+  padding: 40px 60px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-info,
+.footer-nav {
+  flex: 1;
+  min-width: 220px;
+}
+
+.footer-info p,
+.footer-nav li {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.footer-nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-nav li a {
+  color: #f8d775;
+  text-decoration: none;
+}
+
+.footer-nav li a:hover {
+  text-decoration: underline;
+}
+
+footer .copyright {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #ddd;
+}
