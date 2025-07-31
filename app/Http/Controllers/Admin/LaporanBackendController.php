@@ -21,4 +21,10 @@ class LaporanBackendController extends Controller
 
         return response()->download(storage_path("app/public/{$path}"));
     }
+    public function destroy($id)
+    {
+        $laporan = LaporanAkhir::findOrFail($id);
+        $laporan->delete();
+        return redirect()->route('backend.laporan.index')->with('success', 'Data laporan berhasil dihapus.');
+    }
 }

@@ -62,5 +62,12 @@ public function status() {
 public function biodata() {
     return $this->hasOne(Biodata::class);
 }
+public function lognbook() {
+    return $this->hasOne(Logbook::class);
+}
+
+    public function absensi() {
+        return $this->hasMany(Absensi::class);
+    }
 
 }

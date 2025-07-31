@@ -104,7 +104,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/laporan', [LaporanBackendController::class, 'index'])->name('admin.laporan');
     //Route::get('/laporan/download/{type}/{id}', [LaporanBackendController::class, 'downloadFile'])->name('admin.laporan.download');
     Route::get('/admin/laporan/{id}/edit', [LaporanBackendController::class, 'edit'])->name('admin.laporan.edit');
-    Route::get('/laporan/{id}', [LaporanBackendController::class, 'destroy'])->name('admin.laporan.destroy');
+    Route::delete('admin/laporan/{laporan}', [LaporanBackendController::class, 'destroy'])->name('admin.laporan.destroy');
 
     Route::get('/sertifikat', [SertifikatBackendController::class, 'index'])->name('admin.sertifikat');
     Route::get('/admin/sertifikat/{id}/edit', [SertifikatBackendController::class, 'edit'])->name('admin.sertifikat.edit');
