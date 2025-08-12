@@ -48,21 +48,20 @@ class SertifikatBackendController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-            $request->validate([
-            'file_sertifikat' => 'required|mimes:pdf|max:5120'
-        ]);
+{
+    $request->validate([
+        'file' => 'required|mimes:pdf|max:2048'
+    ]);
 
-        $sertifikat = Sertifikat::findOrFail($id);
+    $sertifikat = Sertifikat::findOrFail($id);
 
-        if ($request->hasFile('file_sertifikat')) {
-            $sertifikat->file_sertifikat = $request->file('file_sertifikat')->store('sertifikat', 'public');
-            $sertifikat->file = $request;
-            $sertifikat->save();
-        }
-
-       
-
-        return redirect()->route('admin.sertifikat.index')->with('success', 'Sertifikat berhasil diperbarui.');
+    if ($request->hasFile('file')) {
+        $filePath = $request->file('file')->store('sertifikats', 'public');
+        $sertifikat->file = $filePath;
+        $sertifikat->save();
     }
+
+    return redirect()->route('admin.sertifikat')->with('success', 'Sertifikat berhasil diunggah.');
+}
+
 }

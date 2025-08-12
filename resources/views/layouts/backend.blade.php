@@ -24,7 +24,7 @@
         <aside class="w-64 min-h-screen bg-white shadow-md p-4 flex flex-col justify-between">
             <div>
                 <div class="mb-6 text-center">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-16 mx-auto mb-2">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-16 mx-auto mb-2">
                     <h1 class="font-bold text-sm leading-tight text-center">PEMERINTAH KOTA <br><span class="text-red-600">BUKITTINGGI</span></h1>
                     <p class="text-xs text-gray-600 mt-1">Provinsi Sumatera Barat</p>
                 </div>

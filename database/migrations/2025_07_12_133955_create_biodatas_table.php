@@ -19,6 +19,8 @@ return new class extends Migration
         $table->string('nis_nim');
         $table->string('asal_sekolah');
         $table->string('jurusan');
+        $table->string('matkul_pendukung')->nullable();
+        $table->string('tujuan_magang')->nullable();
         $table->string('nama_pembimbing');
         $table->text('alamat');
         $table->string('no_hp');

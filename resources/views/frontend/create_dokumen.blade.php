@@ -3,8 +3,6 @@
 @section('content')
 <div class="container-fluid">
     <div class="row">
-        {{-- Sidebar --}}
-        @include('components.sidebar_daftar')
 
         {{-- Form Upload --}}
         <div class="col-md-9 p-5">
@@ -17,22 +15,42 @@
             <form action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
+                @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+
                 {{-- Surat Permohonan Magang --}}
-                <div class="row mb-4 align-items-center">
-                    <label class="col-md-4 fw-semibold">Surat Permohonan Magang <span class="text-danger">*</span></label>
-                    <div class="col-md-6 border p-3 rounded border-primary text-center">
-                        <div class="mb-2">
-            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
+         <div class="row mb-4 align-items-center">
+    <label class="col-md-4 fw-semibold">Surat Permohonan Magang <span class="text-danger">*</span></label>
+    <div class="col-md-6 border p-3 rounded border-primary text-center">
+        <div class="mb-2">
+            @if(!empty($dokumen?->surat_permohonan))
+                <i class="bi bi-file-earmark-check-fill text-secondary" style="font-size: 40px;"></i>
+                <p class="fw-semibold text-muted mb-1">Surat_Magang.pdf</p>
+                <a href="{{ asset('storage/' . $dokumen->surat_permohonan) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    Lihat Surat
+                </a>
+            @else
+                <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
+                <p class="mb-2 text-muted">Upload Surat</p>
+                <input type="file" name="surat_permohonan" class="form-control mb-2 @error('surat_permohonan') is-invalid @enderror">
+                @error('surat_permohonan')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+                <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+            @endif
         </div>
-                        <p class="mb-2 text-muted">Upload Surat</p>
-                        <input type="file" name="surat_permohonan" class="form-control mb-2 @error('surat_permohonan') is-invalid @enderror">
-                        @error('surat_permohonan')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <!-- <button class="btn btn-primary btn-sm" type="button">Upload Surat</button> -->
-                        <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
-                    </div>
-                </div>
+    </div>
+</div>
+
+
 
                 {{-- Kartu Tanda Mahasiswa/Pelajar --}}
                 <div class="row mb-4 align-items-center">
@@ -42,8 +60,8 @@
             <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
         </div>
                         <p class="mb-2 text-muted">Upload Kartu</p>
-                        <input type="file" name="kartu_mahasiswa" class="form-control mb-2 @error('kartu_mahasiswa') is-invalid @enderror">
-                        @error('kartu_mahasiswa')
+                        <input type="file" name="kartu_tanda_mahasiswa" class="form-control mb-2 @error('kartu_tanda_mahasiswa') is-invalid @enderror">
+                        @error('kartu_tanda_mahasiswa')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <!-- <button class="btn btn-primary btn-sm" type="button">Upload Kartu</button> -->

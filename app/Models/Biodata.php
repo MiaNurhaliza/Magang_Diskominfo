@@ -8,9 +8,9 @@ class Biodata extends Model
 {
     protected $table = 'biodatas';
     
-   public function absensi()
+   public function absensis()
 {
-    return $this->hasMany(Absensi::class, 'user_id', 'user_id');
+    return $this->hasMany(Absensi::class, 'biodata_id');
 }
 
 public function logbook()
@@ -34,13 +34,31 @@ public function logbook()
     {
         return $this->belongsto(User::class);
     }
+
+    public function pendaftaran()
+{
+    return $this->hasOne(Pendaftaran::class, 'user_id', 'user_id');
+}
+
     protected $fillable = [
+    'user_id',
     'nama_lengkap',
+    'nis_nim',
     'asal_sekolah',
     'jurusan',
+    'matkul_pendukung',
+    'tujuan_magang',
+    'nama_pembimbing',
+    'alamat',
+    'no_hp',
     'tanggal_mulai',
     'tanggal_selesai',
-    // tambahkan kolom lain jika ada yang ikut di-update
+    'surat_pengantar',
+        'cv',
+        'kartu_pelajar',
+        'sertifikat',
+        'status',
+        'alasan_status',
 ];
 
 

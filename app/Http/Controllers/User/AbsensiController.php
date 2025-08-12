@@ -1,42 +1,77 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Absensi;
+use App\Models\Izin;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AbsensiController extends Controller
 {
     public function index() 
     {
-        $absensis = Absensi::where('user_id', Auth::id())->latest('tanggal')->get();
-        return view('user.absensi.index', compact('absensis'));
+        $user = Auth::user();
+
+        // Pastikan user punya biodata
+        if (!$user->biodata) {
+            return back()->with('error', 'Biodata tidak ditemukan.');
+        }
+
+        $biodata = $user->biodata;
+        $biodataId = $biodata->id;
+
+        // Ambil semua absensi peserta
+        $absensis = Absensi::where('biodata_id', $biodataId)->get();
+
+        // Cek tanggal hari ini
+        $today = Carbon::today();
+        $bolehAbsen = $today->between(
+            Carbon::parse($biodata->tanggal_mulai),
+            Carbon::parse($biodata->tanggal_selesai)
+        );
+
+        // Cek apakah sudah absen hari ini
+        $sudahAbsen = Absensi::where('biodata_id', $biodataId)
+            ->whereDate('tanggal', $today)
+            ->exists();
+
+        return view('frontend.absensi.index', compact(
+            'absensis',
+            'bolehAbsen',
+            'sudahAbsen',
+            'biodata'
+        ));
     }
 
     public function store(Request $request)
     {
-        $request -> validate ([
+        $request->validate([
             'tanggal'=> 'required|date',
-            'pagi'=> 'required|string',
-            'siang'=> 'required|string',
-            'sore'=> 'required|string',
-            
+            'pagi'=> 'nullable|string',
+            'siang'=> 'nullable|string',
+            'sore'=> 'nullable|string',
         ]);
 
-        Absensi::updateOrCreate (
-            ['user_id' => Auth::id(), 'tanggal'=>$request->tanggal],
+        $biodataId = Auth::user()->biodata->id;
+
+        Absensi::updateOrCreate(
+            ['biodata_id' => $biodataId, 'tanggal' => $request->tanggal],
             [
                 'pagi' => $request->pagi,
                 'siang' => $request->siang,
                 'sore' => $request->sore,
             ]
-            );
+        );
 
-            return bacl()->with('success', 'Absensi disimpan');
+        return back()->with('success', 'Absensi disimpan');
     }
-    public function ajukanIzin (Request $request)
+
+    public function ajukanIzin(Request $request)
     {
-        $request -> validate ([
+        $request->validate([
             'jenis' => 'required|string',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
@@ -44,19 +79,23 @@ class AbsensiController extends Controller
         ]);
 
         $filePath = null;
-        if ($request -> hasFile('bukti_file')) {
-            $filePath = $request->file('bukti_file')->store('izin','public');
+        if ($request->hasFile('bukti_file')) {
+            $filePath = $request->file('bukti_file')->store('izin', 'public');
         }
 
-        Izin::create ([
-            'user_id'=>Auth::id(),
+        $biodataId = Auth::user()->biodata->id;
+
+        Izin::create([
+            'biodata_id' => $biodataId,
             'jenis' => $request->jenis,
             'tanggal' => $request->tanggal,
             'keterangan' => $request->keterangan,
             'bukti_file' => $filePath,
         ]);
-        return back ()->with('success' , 'Izin berhasil diajukan');
+
+        return back()->with('success', 'Izin berhasil diajukan');
     }
+
     public function isiKehadiran(Request $request)
     {
         $request->validate([
@@ -65,15 +104,19 @@ class AbsensiController extends Controller
             'status' => 'required|string',
         ]);
 
+        $biodataId = Auth::user()->biodata->id;
+
         $absen = Absensi::firstOrNew([
-            'user_id' => Auth::id(),
+            'biodata_id' => $biodataId,
             'tanggal' => $request->tanggal,
         ]);
 
-        $absen -> fill([
-            $request->sesi =>$request->status,
+        $absen->fill([
+            $request->sesi => $request->status,
         ]);
+
         $absen->save();
-        return back()->with('succes', 'Kehadiran berhasil disimpan');
+
+        return back()->with('success', 'Kehadiran berhasil disimpan');
     }
 }

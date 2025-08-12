@@ -3,32 +3,76 @@
 namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
-use App\Models\Status; 
 use App\Http\Controllers\Controller;
+use App\Models\Biodata;
+use Illuminate\Support\Facades\Auth;
 
 class StatusController extends Controller
 {
-    public function status()
-    {
-        // Ambil data pendaftaran berdasarkan user yang login
-        $status = Status::where('user_id', auth()->id())->get();
 
-        return view('frontend.status_pendaftaran', compact('status'));
-    }
+public function index()
+{
+    // Ambil data biodata berdasarkan user yang login
+    $status = Biodata::where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($item) {
+            // Normalisasi status supaya konsisten di view
+            if (strtolower($item->status) === 'jadwal dirubah' || strtolower($item->status) === 'jadwal_dirubah') {
+                $item->status = 'jadwal_dialihkan';
+            }
+            return $item;
+        });
+
+    return view('frontend.status_pendaftaran', compact('status'));
+}
+
+
+    // public function status()
+    // {
+    //     // Ambil data pendaftaran user yang login
+    //     $status = Biodata::where('user_id', auth()->id())->first();
+
+    //     if (!$status) {
+    //         return redirect()->route('biodata.create')
+    //                          ->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
+    //     }
+
+    //     return view('frontend.status_pendaftaran', compact('status'));
+    // }
 
     public function konfirmasiKetersediaan(Request $request, $id)
-    {
-        $status = Status::findOrFail($id);
-        $status->ketersediaan = $request->ketersediaan;
-        $status->save();
+{
+    $request->validate([
+        'ketersediaan' => 'required|in:ya,tidak'
+    ]);
 
-        return back()->with('success', 'Konfirmasi berhasil disimpan.');
-    }
+    $pendaftar = Biodata::where('user_id', auth()->id())
+                        ->where('id', $id)
+                        ->firstOrFail();
+
+    $pendaftar->ketersediaan = $request->ketersediaan;
+    $pendaftar->save();
+
+    return back()->with('success', 'Konfirmasi berhasil disimpan.');
+}
 
     public function unduhSurat($id)
     {
-        $status = Status::findOrFail($id);
+        $pendaftar = Biodata::where('user_id', auth()->id())
+                            ->where('id', $id)
+                            ->firstOrFail();
 
-        return response()->download(storage_path('app/public/surat_balasan/' . $status->surat_balasan));
+        if (!$pendaftar->surat_balasan) {
+            return back()->with('error', 'Surat balasan belum tersedia.');
+        }
+
+        $path = storage_path('app/public/' . $pendaftar->surat_balasan);
+
+        if (!file_exists($path)) {
+            return back()->with('error', 'File surat balasan tidak ditemukan.');
+        }
+
+        return response()->download($path);
     }
 }

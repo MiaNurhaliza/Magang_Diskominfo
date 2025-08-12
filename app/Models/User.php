@@ -66,8 +66,11 @@ public function lognbook() {
     return $this->hasOne(Logbook::class);
 }
 
-    public function absensi() {
+public function absensi() {
         return $this->hasMany(Absensi::class);
-    }
+}    
+public function pendaftar() {
+        return $this->hasMany(Pendaftar::class);
+}  
 
 }

@@ -18,6 +18,7 @@
                             <th>Tanggal Mulai</th>
                             <th>Tanggal Selesai</th>
                             <th>Status</th>
+                            <th>Ketersediaan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -38,15 +39,30 @@
                                 @elseif($pendaftar->status == 'Ditolak')
                                     <span class="badge bg-danger">Ditolak</span>
                                 @elseif($pendaftar->status == 'Jadwal Dirubah')
-                                    <span class="badge bg-info text-dark">Jadwal Dirubah</span>
+                                    <span class="badge bg-info text-dark">Jadwal Dialihkan</span>
                                 @else
                                     <span class="badge bg-secondary">-</span>
                                 @endif
                             </td>
                             <td>
+    @if($pendaftar->ketersediaan === 'ya')
+        <span class="badge bg-success">Menerima</span>
+    @elseif($pendaftar->ketersediaan === 'tidak')
+        <span class="badge bg-danger">Menolak</span>
+    @else
+        <span class="badge bg-secondary">Belum Konfirmasi</span>
+    @endif
+</td>
+
+                            <td>
                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ $pendaftar->id }}">
                                     <i class="bi bi-eye"></i>
                                 </button>
+
+                                 {{-- Tombol Edit Jadwal --}}
+    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editJadwalModal{{ $pendaftar->id }}">
+        <i class="bi bi-pencil"></i>
+    </button>
 
                                 <form method="POST" action="{{ route('admin.pendaftar.delete', $pendaftar->id) }}" class="d-inline">
                                     @csrf
@@ -102,7 +118,7 @@
                                                     <option value="Diproses" {{ $pendaftar->status == 'Diproses' ? 'selected' : '' }}>Diproses</option>
                                                     <option value="Diterima" {{ $pendaftar->status == 'Diterima' ? 'selected' : '' }}>Diterima</option>
                                                     <option value="Ditolak" {{ $pendaftar->status == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
-                                                    <option value="Jadwal Dirubah" {{ $pendaftar->status == 'Jadwal Dirubah' ? 'selected' : '' }}>Jadwal Dirubah</option>
+                                                    <option value="Jadwal Dirubah" {{ $pendaftar->status == 'Jadwal Dirubah' ? 'selected' : '' }}>Jadwal Dialihkan</option>
                                                 </select>
                                             </div>
 
@@ -124,6 +140,37 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Modal Edit Jadwal --}}
+<div class="modal fade" id="editJadwalModal{{ $pendaftar->id }}" tabindex="-1" aria-labelledby="editJadwalLabel{{ $pendaftar->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('admin.pendaftar.updateJadwal', $pendaftar->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Jadwal Magang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tanggal_mulai_{{ $pendaftar->id }}" class="form-label">Tanggal Mulai</label>
+                        <input type="date" id="tanggal_mulai_{{ $pendaftar->id }}" name="tanggal_mulai" class="form-control" value="{{ $pendaftar->tanggal_mulai }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tanggal_selesai_{{ $pendaftar->id }}" class="form-label">Tanggal Selesai</label>
+                        <input type="date" id="tanggal_selesai_{{ $pendaftar->id }}" name="tanggal_selesai" class="form-control" value="{{ $pendaftar->tanggal_selesai }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
                         @empty
                         <tr>

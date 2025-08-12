@@ -31,28 +31,40 @@
 
                 <ul class="space-y-2 font-medium text-sm text-center">
                     <li>
-                        <a href="{{ route('biodata.edit') }}"
-                           class="block px-3 py-2 rounded-full {{ request()->routeIs('biodata.edit') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
-                           Biodata
+                        <a href="{{ route('peserta.dashboard') }}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('peserta.dashboard') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('dokumen.create') }}"
-                           class="block px-3 py-2 rounded-full {{ request()->routeIs('dokumen.create') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
-                           Dokumen
+                        <a href="{{ route('absensi.index') }}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('absensi') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Absensi
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('pendaftaran.status') }}"
-                        class="block px-3 py-2 rounded-full {{ request()->routeIs('pendaftaran.status') ? 'text-white bg-blue-600': 'hover:bg-gray-100'}}">
-                        Status Pendaftaran
+                        <a href="{{ route('upload_logbook_harian') }}"
+                        class="block px-3 py-2 rounded-full {{ request()->routeIs('upload_logbook_harian') ? 'text-white bg-blue-600': 'hover:bg-gray-100'}}">
+                        Upload Logbook Harian
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('upload_laporan_akhir')}}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('upload_laporan_akhir') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Upload Laporan Akhir
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('unduh_sertifikat') }}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('unduh_sertifikat') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Unduh Sertifikat
                         </a>
                     </li>
                     
                 </ul>
             </div>
             <div>
-                <a href="/landing" class="block text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4">Keluar</a>
+                <a href="#" class="block text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4">Keluar</a>
             </div>
         </aside>
 

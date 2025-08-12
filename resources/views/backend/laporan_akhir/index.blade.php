@@ -36,9 +36,9 @@
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ $laporan->id }}">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <a href="{{ route('admin.laporan.edit', $laporan->id) }}" class="btn btn-sm btn-outline-success">
+                        {{-- <a href="{{ route('admin.laporan.edit', $laporan->id) }}" class="btn btn-sm btn-outline-success">
                             <i class="bi bi-pencil-square"></i>
-                        </a>
+                        </a> --}}
                         <form action="{{ route('admin.laporan.destroy', $laporan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus laporan ini?')">
                             @csrf
                             @method('DELETE')
