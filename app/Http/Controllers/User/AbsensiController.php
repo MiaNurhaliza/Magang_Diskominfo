@@ -23,25 +23,54 @@ class AbsensiController extends Controller
         $biodata = $user->biodata;
         $biodataId = $biodata->id;
 
-        // Ambil semua absensi peserta
-        $absensis = Absensi::where('biodata_id', $biodataId)->get();
-
-        // Cek tanggal hari ini
+        $tanggalMulai = Carbon::parse($biodata->tanggal_mulai);
+        $tanggalSelesai = Carbon::parse($biodata->tanggal_selesai);
         $today = Carbon::today();
-        $bolehAbsen = $today->between(
-            Carbon::parse($biodata->tanggal_mulai),
-            Carbon::parse($biodata->tanggal_selesai)
-        );
 
-        // Cek apakah sudah absen hari ini
-        $sudahAbsen = Absensi::where('biodata_id', $biodataId)
+        // Cek apakah hari ini dalam periode magang dan bukan weekend
+        $bolehAbsen = $today->between($tanggalMulai, $tanggalSelesai) && !$today->isWeekend();
+
+        // Ambil semua riwayat absensi yang sudah ada
+        $riwayatAbsensi = Absensi::where('biodata_id', $biodataId)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        // Cek absensi hari ini
+        $absensiHariIni = Absensi::where('biodata_id', $biodataId)
             ->whereDate('tanggal', $today)
-            ->exists();
+            ->first();
+
+        // Jika belum ada absensi hari ini dan boleh absen, tambahkan ke list
+        $absensis = collect();
+        
+        if ($bolehAbsen) {
+            if ($absensiHariIni) {
+                $absensiHariIni->is_today = true;
+                $absensis->push($absensiHariIni);
+            } else {
+                $absensis->push((object) [
+                    'id' => null,
+                    'biodata_id' => $biodataId,
+                    'tanggal' => $today->format('Y-m-d'),
+                    'pagi' => null,
+                    'siang' => null,
+                    'sore' => null,
+                    'is_today' => true
+                ]);
+            }
+        }
+
+        // Tambahkan riwayat absensi sebelumnya
+        foreach ($riwayatAbsensi as $absensi) {
+            if (!$today->isSameDay(Carbon::parse($absensi->tanggal))) {
+                $absensi->is_today = false;
+                $absensis->push($absensi);
+            }
+        }
 
         return view('frontend.absensi.index', compact(
             'absensis',
             'bolehAbsen',
-            'sudahAbsen',
             'biodata'
         ));
     }
@@ -49,46 +78,56 @@ class AbsensiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tanggal'=> 'required|date',
-            'pagi'=> 'nullable|string',
-            'siang'=> 'nullable|string',
-            'sore'=> 'nullable|string',
+            'tanggal' => 'required|date',
+            'sesi' => 'required|in:pagi,siang,sore',
+            'status' => 'required|string',
         ]);
 
         $biodataId = Auth::user()->biodata->id;
+        $sesi = $request->sesi;
+        $status = $request->status;
 
-        Absensi::updateOrCreate(
-            ['biodata_id' => $biodataId, 'tanggal' => $request->tanggal],
-            [
-                'pagi' => $request->pagi,
-                'siang' => $request->siang,
-                'sore' => $request->sore,
-            ]
-        );
+        // Update atau create absensi
+        $absensi = Absensi::firstOrNew([
+            'biodata_id' => $biodataId,
+            'tanggal' => $request->tanggal
+        ]);
 
-        return back()->with('success', 'Absensi disimpan');
+        // Set user_id dan status untuk sesi yang dipilih
+        $absensi->user_id = Auth::id();
+        $absensi->$sesi = $status;
+        $absensi->save();
+
+        return back()->with('success', 'Absensi berhasil disimpan');
     }
 
-    public function ajukanIzin(Request $request)
+    public function storeIzin(Request $request)
     {
-        $request->validate([
-            'jenis' => 'required|string',
-            'tanggal' => 'required|date',
+        // Validation rules based on izin type
+        $rules = [
+            'jenis_izin' => 'required|string',
+            'tanggal_izin' => 'required|date',
             'keterangan' => 'nullable|string',
-            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        ]);
+        ];
 
-        $filePath = null;
-        if ($request->hasFile('bukti_file')) {
-            $filePath = $request->file('bukti_file')->store('izin', 'public');
+        // Only require file upload for 'Sakit' type
+        if ($request->jenis_izin === 'Sakit') {
+            $rules['surat_keterangan'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
+        } else {
+            $rules['surat_keterangan'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048';
         }
 
-        $biodataId = Auth::user()->biodata->id;
+        $request->validate($rules);
+
+        $filePath = null;
+        if ($request->hasFile('surat_keterangan')) {
+            $filePath = $request->file('surat_keterangan')->store('izin', 'public');
+        }
 
         Izin::create([
-            'biodata_id' => $biodataId,
-            'jenis' => $request->jenis,
-            'tanggal' => $request->tanggal,
+            'user_id' => Auth::id(),
+            'jenis' => $request->jenis_izin,
+            'tanggal' => $request->tanggal_izin,
             'keterangan' => $request->keterangan,
             'bukti_file' => $filePath,
         ]);

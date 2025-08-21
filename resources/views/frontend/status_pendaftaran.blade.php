@@ -1,6 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .container-fluid { padding: 15px; }
+        .col-md-9 { padding: 15px !important; }
+        h4 { font-size: 1.4rem; }
+        .table td, .table th { font-size: 0.9rem; padding: 0.5rem; }
+        .btn { padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+    }
+    @media (max-width: 576px) {
+        .container-fluid { padding: 10px; }
+        .col-md-9 { padding: 10px !important; }
+        h4 { font-size: 1.2rem; }
+        .table td, .table th { font-size: 0.85rem; padding: 0.4rem; }
+        .btn { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row">
         {{-- Konten Utama --}}

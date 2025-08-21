@@ -1,6 +1,55 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 15px;
+        }
+        .col-md-9 {
+            padding: 15px !important;
+        }
+        h4 {
+            font-size: 1.2rem;
+        }
+        .col-md-4 {
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            font-size: 0.9rem;
+        }
+        .text-muted, .text-danger {
+            font-size: 0.85rem;
+        }
+        .bi {
+            font-size: 30px !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding: 10px;
+        }
+        .col-md-9 {
+            padding: 10px !important;
+        }
+        h4 {
+            font-size: 1.1rem;
+        }
+        .form-control {
+            font-size: 0.85rem;
+        }
+        .text-muted, .text-danger {
+            font-size: 0.8rem;
+        }
+        .bi {
+            font-size: 25px !important;
+        }
+        .fw-semibold {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row">
 

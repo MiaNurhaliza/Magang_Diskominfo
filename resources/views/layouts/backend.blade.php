@@ -16,6 +16,57 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+            }
+            aside.w-64 {
+                width: 100%;
+                min-height: auto;
+                margin-bottom: 1rem;
+            }
+            .flex-1 {
+                width: 100%;
+                padding: 1rem;
+            }
+            .space-y-2 {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+            .space-y-2 li {
+                width: calc(50% - 0.5rem);
+            }
+            .space-y-2 a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .space-y-2 li {
+                width: 100%;
+            }
+            .w-16 {
+                width: 3rem;
+            }
+            .text-sm {
+                font-size: 0.8rem;
+            }
+            .px-3 {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            .py-2 {
+                padding-top: 0.375rem;
+                padding-bottom: 0.375rem;
+            }
+        }
+    </style>
 </head>
 <body class="bg-white-100 font-sans leading-normal tracking-normal">
 

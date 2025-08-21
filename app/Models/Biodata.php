@@ -13,6 +13,11 @@ class Biodata extends Model
     return $this->hasMany(Absensi::class, 'biodata_id');
 }
 
+public function absensi()
+{
+    return $this->hasMany(Absensi::class, 'biodata_id');
+}
+
 public function logbook()
 {
     return $this->hasMany(Logbook::class, 'user_id', 'user_id');
@@ -34,6 +39,16 @@ public function logbook()
     {
         return $this->belongsto(User::class);
     }
+
+    public function dashboard()
+{
+    $peserta = auth()->user(); // jika peserta login
+    return view('frontend.dashboard', compact('peserta'));
+}
+protected $casts = [
+        'tanggal_mulai'   => 'date',
+        'tanggal_selesai' => 'date',
+    ];
 
     public function pendaftaran()
 {

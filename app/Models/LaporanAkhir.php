@@ -13,11 +13,10 @@ class LaporanAkhir extends Model
     protected $fillable = [
         'user_id',
         'nama_lengkap',
-        'judul-laporan',
+        'judul_laporan',
         'pembimbing_industri',
         'file_laporan',
         'file_nilai_magang',
-
     ];
     public function user()
     {

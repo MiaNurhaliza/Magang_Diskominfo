@@ -1,6 +1,60 @@
 @extends('layouts.backend')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 10px;
+        }
+        .card {
+            margin: 10px !important;
+        }
+        h5 {
+            font-size: 1.1rem;
+            padding: 10px !important;
+        }
+        h6 {
+            font-size: 1rem;
+        }
+        .btn-sm {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.75rem;
+        }
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+        .modal-body .row {
+            margin-bottom: 0.5rem !important;
+        }
+        .modal-body .col-4 {
+            font-size: 0.9rem;
+        }
+        .modal-body .col-8 {
+            font-size: 0.9rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .table {
+            font-size: 0.8rem;
+        }
+        .btn-sm {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.7rem;
+        }
+        .modal-title {
+            font-size: 1.1rem;
+        }
+        .modal-body .col-4,
+        .modal-body .col-8 {
+            font-size: 0.85rem;
+        }
+        .btn-outline-warning {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+</style>
+
 <div class="container-fluid" style="background-color: #f5f5f5; min-height: 100vh;">
     <h5 class="pt-4 px-4">Selamat Datang, Admin</h5>
 

@@ -25,9 +25,9 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $absen->biodata->nama_lengkap ?? '-' }}</td>
                     <td>{{ \Carbon\Carbon::parse($absen->tanggal)->translatedFormat('l, d-m-Y') }}</td>
-                    <td>{{ $absen->absen_pagi }}</td>
-                    <td>{{ $absen->absen_siang }}</td>
-                    <td>{{ $absen->absen_sore }}</td>
+                    <td>{{ $absen->pagi ?? '-' }}</td>
+                    <td>{{ $absen->siang ?? '-' }}</td>
+                    <td>{{ $absen->sore ?? '-' }}</td>
                     <td>{{ $absen->keterangan ?? '-' }}</td>
                     <td>
                         @if ($absen->file_keterangan)

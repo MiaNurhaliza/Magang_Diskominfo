@@ -7,6 +7,9 @@ use App\Http\Controllers\User\Statuscontroller;
 use App\Http\Controllers\User\AbsensiController;
 use App\Http\Controllers\User\Logincontroller;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\LogbookController;
+use App\Http\Controllers\User\LaporanAkhirController;
+use App\Http\Controllers\User\SertifikatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminPendaftarController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -19,13 +22,28 @@ use App\Http\Controllers\Auth\RegisterController;
 
 
 
-Route::get('/landing', function () {
+Route::get('/', function () {
     return view('landing.index');
 });
 
 Route::get('/dashboard', function () {
+    if (auth()->user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::redirect('/dashboard', '/peserta/dashboard')->name('dashboard');
+
+// Admin Routes
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+});
+
+//Register routes (accessible to guests)
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dokumen', [DokumenController::class, 'create'])->name('dokumen.create');
@@ -35,21 +53,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/biodata/edit', [\App\Http\Controllers\User\BiodataController::class, 'edit'])->name('biodata.edit');
     Route::put('/biodata/{biodatum}', [BiodataController::class, 'update'])->name('biodata.update');
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
-
-Route::get('/status-pendaftaran', [StatusController::class, 'index'])
-    ->name('pendaftaran.status');
-Route::post('/status/konfirmasi/{id}', [\App\Http\Controllers\User\StatusController::class, 'konfirmasiKetersediaan'])
-    ->name('pendaftaran.konfirmasi');
+    //Status pendaftaran
+    Route::get('/status', [StatusController::class, 'index'])->name('pendaftaran.status');
+    Route::post('/status/konfirmasi/{id}', [\App\Http\Controllers\User\StatusController::class, 'konfirmasiKetersediaan'])
+        ->name('pendaftaran.konfirmasi');
+    Route::get('/pendaftaran/unduh-surat/{id}', [StatusController::class, 'unduhSurat'])->name('pendaftaran.unduh_surat');
     
     Route::get('/peserta/dashboard', [\App\Http\Controllers\User\PesertaController::class, 'index'])
-    ->name('peserta.dashboard');
-
-
-//Route::get('/status-pendaftaran', [StatusController::class, 'status'])->name('pendaftaran.status');
-Route::post('/pendaftaran/konfirmasi/{id}', [StatusController::class, 'konfirmasiKetersediaan'])->name('pendaftaran.konfirmasi');
-Route::get('/pendaftaran/unduh-surat/{id}', [StatusController::class, 'unduhSurat'])->name('pendaftaran.unduh_surat');
+        ->name('peserta.dashboard');
 
 
 //PESERTA MAGANG (yang telah diterima)
@@ -58,16 +69,25 @@ Route::get('/pendaftaran/unduh-surat/{id}', [StatusController::class, 'unduhSura
 //   Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
 Route::prefix('absensi')->name('absensi.')->group(function () {
     Route::get('/', [AbsensiController::class, 'index'])->name('index');
-    Route::post('/masuk', [AbsensiController::class, 'masuk'])->name('masuk');
-    Route::post('/keluar', [AbsensiController::class, 'keluar'])->name('keluar');
+    Route::post('/masuk', [AbsensiController::class, 'masuk'])->name('absensi.masuk');
+    Route::post('/keluar', [AbsensiController::class, 'keluar'])->name('absensi.keluar');
 });
 Route::post('/absensi/masuk', [AbsensiController::class, 'masuk'])->name('absensi.masuk');
-
-// Absensi pulang
+Route::post('/absensi/store', [AbsensiController::class, 'store'])->name('absensi.store');
 Route::post('/absensi/pulang', [AbsensiController::class, 'pulang'])->name('absensi.pulang');
+Route::post('/izin/store', [AbsensiController::class, 'storeIzin'])->name('izin.store');
+
     Route::get('/logbook', [LogbookController::class, 'index'])->name('upload_logbook_harian');
+    Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+    Route::get('/logbook/{id}/edit', [LogbookController::class, 'edit'])->name('logbook.edit');
+    Route::put('/logbook/{id}', [LogbookController::class, 'update'])->name('logbook.update');
+    Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
+
     Route::get('/laporan-akhir', [LaporanAkhirController::class, 'index'])->name('upload_laporan_akhir');
+    Route::post('/laporan-akhir', [LaporanAkhirController::class, 'store'])->name('laporan-akhir.store');
+    Route::get('/laporan-akhir/download/{type}', [LaporanAkhirController::class, 'download'])->name('laporan-akhir.download');
     Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('unduh_sertifikat');
+    Route::get('/sertifikat/download', [SertifikatController::class, 'download'])->name('sertifikat.download');
 
 });
 Route::prefix('user')->name('user.')->group(function () {
@@ -152,6 +172,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     // Tampilkan tabel sertifikat
  Route::get('/sertifikat', [SertifikatBackendController::class, 'index'])->name('admin.sertifikat');
+    Route::post('/sertifikat', [SertifikatBackendController::class, 'store'])->name('admin.sertifikat.store');
     Route::get('/sertifikat/{id}/edit', [SertifikatBackendController::class, 'edit'])->name('admin.sertifikat.edit');
     Route::put('/sertifikat/{id}', [SertifikatBackendController::class, 'update'])->name('admin.sertifikat.update');
     Route::get('/sertifikat/{id}/download', [SertifikatBackendController::class, 'download'])->name('admin.sertifikat.download');

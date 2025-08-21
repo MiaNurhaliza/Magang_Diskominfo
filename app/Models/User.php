@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -72,5 +73,14 @@ public function absensi() {
 public function pendaftar() {
         return $this->hasMany(Pendaftar::class);
 }  
+
+public function sertifikat() {
+    return $this->hasOne(Sertifikat::class);
+}
+
+public function laporanAkhir() {
+    return $this->hasOne(LaporanAkhir::class);
+}
+
 
 }

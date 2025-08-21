@@ -2,7 +2,43 @@
 
 @section('content')
 
-
+<style>
+    @media (max-width: 768px) {
+        .col-md-10 {
+            padding: 15px !important;
+        }
+        h4 {
+            font-size: 1.4rem;
+        }
+        .form-label {
+            font-size: 0.9rem;
+        }
+        .form-control {
+            font-size: 0.9rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .col-md-10 {
+            padding: 10px !important;
+        }
+        h4 {
+            font-size: 1.2rem;
+        }
+        .form-label {
+            font-size: 0.85rem;
+        }
+        .form-control {
+            font-size: 0.85rem;
+        }
+        .col-sm-2 {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .col-sm-9 {
+            width: 100%;
+        }
+    }
+</style>
 
 <div class="col-md-10 p-5">
     <h4 class="fw-semibold">Lengkapi Biodata Anda!</h4>

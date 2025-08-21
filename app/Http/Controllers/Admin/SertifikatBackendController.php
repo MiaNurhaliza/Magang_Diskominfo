@@ -9,30 +9,33 @@ use Illuminate\Support\Facades\Storage;
 
 class SertifikatBackendController extends Controller
 {
-    public function index () {
-        $sertifikats = Sertifikat::with('user.biodata')->get();
-        return view('backend.sertifikat.index',compact('sertifikats'));
+    public function index() {
+        // Ambil semua user yang memiliki biodata (peserta magang) dan sudah mengupload laporan akhir
+        $users = \App\Models\User::whereHas('biodata')
+            ->with(['biodata', 'sertifikat', 'laporanAkhir'])
+            ->get();
+        return view('backend.sertifikat.index', compact('users'));
     }
 
     public function store(Request $request) {
         $request->validate([
-            'user_id'=>'required|exists:user.id',
+            'user_id'=>'required|exists:users,id',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai'=> 'required|date',
             'file_sertifikat' => 'required|mimes:pdf|max:5120'
         ]);
 
-        $path = $request -> file('file_sertifikat')->store('sertifikat','public');
+        $path = $request->file('file_sertifikat')->store('sertifikat','public');
 
         Sertifikat::updateOrCreate(
             ['user_id' => $request->user_id],
             [
-                'tanggal_mulai' => $request->tanggal_mulai,
-                'tanggal_selesai' => $request->tanggal_selesai,
+                'tanggal_mulai' => \Carbon\Carbon::parse($request->tanggal_mulai)->format('Y-m-d'),
+                'tanggal_selesai' => \Carbon\Carbon::parse($request->tanggal_selesai)->format('Y-m-d'),
                 'file_sertifikat' => $path,
             ]
         );
-        return back()->with('succes','Sertifikat berhasil diunggah');
+        return back()->with('success','Sertifikat berhasil diunggah!');
     }
 
     public function download($id)

@@ -28,7 +28,23 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = Auth::user();
+
+        // Redirect berdasarkan role
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        // Cek apakah user sudah melengkapi biodata
+        $biodata = $user->biodata;
+        
+        if (!$biodata) {
+            // User baru yang belum melengkapi biodata -> redirect ke biodata
+            return redirect()->intended(route('biodata.create', absolute: false));
+        }
+
+        // User yang sudah melengkapi biodata -> redirect ke dashboard peserta
+        return redirect()->intended(route('peserta.dashboard', absolute: false));
     }
 
     /**

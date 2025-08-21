@@ -8,20 +8,26 @@ use App\Models\Biodata;
 
 class DashboardController extends Controller
 {
-    public function index()
+   public function index()
     {
-        // Ambil status pendaftaran dari biodata user
         $biodata = Biodata::where('user_id', Auth::id())->first();
 
-        // Cek apakah status Diterima
         if ($biodata && $biodata->status === 'Diterima') {
-            return view('user.dashboard', [
-                'biodata' => $biodata
-            ]);
+
+            $periode = null;
+            if ($biodata->tanggal_mulai && $biodata->tanggal_selesai) {
+                // karena sudah di-cast ke date, bisa langsung format()
+                $periode = $biodata->tanggal_mulai->format('d M Y')
+                         . ' s/d ' .
+                           $biodata->tanggal_selesai->format('d M Y');
+            }
+
+            return view('landing.index', compact('biodata','periode'));
         }
 
-        // Kalau belum diterima, arahkan balik ke halaman status
-        return redirect()->route('status.pendaftaran')
-                         ->with('error', 'Status pendaftaran kamu belum Diterima.');
+        return redirect()
+            ->route('pendaftaran.status')
+            ->with('error', 'Status pendaftaran kamu belum Diterima.');
     }
+
 }

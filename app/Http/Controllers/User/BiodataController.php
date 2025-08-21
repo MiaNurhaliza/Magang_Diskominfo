@@ -12,18 +12,17 @@ class BiodataController extends Controller
     // Menampilkan form pengisian biodata pertama kali
     public function create()
     {
-        // nanti ganti Auth::id()
         return view('frontend.create_biodata');
     }
 
     // Menampilkan form edit biodata
     public function edit()
     {
-        $biodata = Biodata::where('user_id', Auth::id())->first(); // ganti ke Auth::id() nanti
+        $biodata = Biodata::where('user_id', Auth::id())->first();
         
         if (!$biodata) {
-        return redirect()->route('biodata.create')->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
-    }
+            return redirect()->route('biodata.create')->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
+        }
         return view('frontend.edit_biodata', compact('biodata'));
     }
 
@@ -45,7 +44,7 @@ class BiodataController extends Controller
         ]);
 
         Biodata::create([
-            'user_id' => 1, // nanti ganti ke Auth::id()
+            'user_id' => Auth::id(),
             'nama_lengkap' => $request->nama_lengkap,
             'nis_nim' => $request->nis_nim,
             'asal_sekolah' => $request->asal_sekolah,
@@ -59,7 +58,7 @@ class BiodataController extends Controller
             'tanggal_selesai' => $request->tanggal_selesai,
         ]);
 
-        return redirect()->route('biodata.edit')->with('success', 'Biodata berhasil disimpan!');
+        return redirect()->route('dokumen.create')->with('success', 'Biodata berhasil disimpan! Silakan lengkapi dokumen.');
     }
 
     // Mengupdate biodata yang sudah ada
@@ -79,7 +78,7 @@ class BiodataController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
-        $biodata = Biodata::where('user_id', 1)->firstOrFail(); // nanti ganti ke Auth::id()
+        $biodata = Biodata::where('user_id', Auth::id())->firstOrFail();
         $biodata->update($request->all());
 
         return redirect()->route('biodata.edit')->with('success', 'Biodata berhasil diperbarui!');

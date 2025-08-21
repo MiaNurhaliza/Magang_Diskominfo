@@ -21,7 +21,7 @@ class PesertaController extends Controller
         }
 
         // Kalau belum diterima, arahkan balik ke halaman status
-        return redirect()->route('status.pendaftaran')
+        return redirect()->route('pendaftaran.status')
                          ->with('error', 'Status pendaftaran kamu belum Diterima.');
     }
 }

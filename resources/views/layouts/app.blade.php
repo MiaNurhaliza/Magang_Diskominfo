@@ -52,7 +52,10 @@
                 </ul>
             </div>
             <div>
-                <a href="/landing" class="block text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4">Keluar</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="block w-full text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4 hover:bg-blue-700 transition duration-200">Keluar</button>
+                </form>
             </div>
         </aside>
 

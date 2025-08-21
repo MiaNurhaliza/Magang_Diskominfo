@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - @yield('title', 'Sistem')</title>
+    <title> @yield('title', 'Sistem')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -13,6 +13,8 @@
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -38,7 +40,7 @@
                     </li>
                     <li>
                         <a href="{{ route('absensi.index') }}"
-                           class="block px-3 py-2 rounded-full {{ request()->routeIs('absensi') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('absensi.index') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
                            Absensi
                         </a>
                     </li>
@@ -64,7 +66,10 @@
                 </ul>
             </div>
             <div>
-                <a href="#" class="block text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4">Keluar</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="block w-full text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4 hover:bg-blue-700 transition duration-200">Keluar</button>
+                </form>
             </div>
         </aside>
 

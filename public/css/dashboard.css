@@ -1,0 +1,114 @@
+
+  .hero {
+    background: linear-gradient(90deg, #1E88E5 0%, #42A5F5 100%);
+    border-radius: 10px;
+    padding: 30px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+  
+  .hero-sub, .hero-org {
+    font-size: 16px;
+    opacity: 0.9;
+  }
+  
+  .hero-illus {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  
+  .section-sub {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .stage {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .info-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .info-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 20px;
+    color: #1E88E5;
+  }
+  
+  .info-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .list-dots {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .list-dots li {
+    margin-bottom: 8px;
+    position: relative;
+  }
+  
+  .muted {
+    color: #6c757d;
+  }
+  
+  .time-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .time-list li {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .time-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ffc107;
+    margin-right: 10px;
+  }
+
+

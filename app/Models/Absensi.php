@@ -9,7 +9,7 @@ class Absensi extends Model
 {
     
     use HasFactory;
-    protected $fillable = ['user_id', 'tanggal', 'pagi', 'siang', 'sore'];
+    protected $fillable = ['user_id', 'biodata_id', 'tanggal', 'pagi', 'siang', 'sore'];
 
     public function user()
     {
@@ -20,5 +20,6 @@ class Absensi extends Model
     {
     return $this->belongsTo(Biodata::class, 'biodata_id');
     }
+    
     
 }

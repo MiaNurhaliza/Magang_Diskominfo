@@ -1,6 +1,47 @@
 @extends('layouts.backend')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px;
+        }
+        h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .form-control {
+            font-size: 0.9rem;
+        }
+        label {
+            font-size: 0.9rem;
+        }
+        .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .container {
+            padding: 10px;
+        }
+        h4 {
+            font-size: 1.3rem;
+        }
+        .form-control {
+            font-size: 0.85rem;
+        }
+        label {
+            font-size: 0.85rem;
+        }
+        .btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+
 <div class="container mt-5">
     <h4>Edit Data Peserta Magang</h4>
     <form action="{{ route('admin.peserta-aktif.update', $peserta->id) }}" method="POST">

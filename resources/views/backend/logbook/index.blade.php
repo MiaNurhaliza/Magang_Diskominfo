@@ -26,8 +26,8 @@
                     <td>{{ $logbook->kegiatan }}</td>
                     <td>{{ $logbook->langkah_kerja ?? '-' }}</td>
                     <td>
-                        @if ($logbook->gambar)
-                            <a href="{{ asset('storage/' . $logbook->gambar) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        @if ($logbook->hasil_akhir)
+                            <a href="{{ asset('storage/' . $logbook->hasil_akhir) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-image"></i> Lihat Gambar
                             </a>
                         @else
