@@ -1,62 +1,6 @@
 @extends('layouts.peserta')
 
 @section('content')
-<style>
-    /* Responsive Styles */
-    @media (max-width: 992px) {
-        .card {
-            margin: 0.5rem;
-        }
-        h2 {
-            font-size: 1.5rem;
-            margin-left: 0.5rem;
-        }
-        .table th, .table td {
-            font-size: 0.9rem;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .table th, .table td {
-            font-size: 0.85rem;
-            padding: 0.5rem;
-        }
-        .btn {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-        }
-        .modal-dialog {
-            margin: 0.5rem;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        h2 {
-            font-size: 1.25rem;
-        }
-        .table th, .table td {
-            font-size: 0.8rem;
-            padding: 0.4rem;
-        }
-        .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.85rem;
-        }
-        .card-body {
-            padding: 0.75rem;
-        }
-        .d-flex {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .d-flex button {
-            width: 100%;
-        }
-    }
-</style>
 <div class="container-fluid">
     <div class="row">
         {{-- Content --}}

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin - @yield('title', 'Sistem')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
@@ -123,10 +124,27 @@
                            Sertifikat
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.pembimbing.index') }}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('admin.pembimbing.*') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Pembimbing
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.laporan-triwulan.index') }}"
+                           class="block px-3 py-2 rounded-full {{ request()->routeIs('admin.laporan-triwulan.*') ? 'text-white bg-blue-600' : 'hover:bg-gray-100' }}">
+                           Laporan Triwulan
+                        </a>
+                    </li>
                 </ul>
             </div>
             <div>
-                <a href="#" class="block text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4">Keluar</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="block w-full text-center py-3 text-white font-medium bg-blue-600 rounded-lg mt-4 hover:bg-blue-700">
+                        Keluar
+                    </button>
+                </form>
             </div>
         </aside>
 
@@ -136,6 +154,9 @@
         </div>
     </div>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>

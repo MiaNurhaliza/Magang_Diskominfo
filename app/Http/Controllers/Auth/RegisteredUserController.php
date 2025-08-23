@@ -39,13 +39,14 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'user',
+            'role' => 'user', // Set default role for new registrations
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to biodata form for new users to complete their registration
+        return redirect()->route('biodata.create');
     }
 }

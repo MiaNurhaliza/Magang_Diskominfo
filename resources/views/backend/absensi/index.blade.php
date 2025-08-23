@@ -25,13 +25,52 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $absen->biodata->nama_lengkap ?? '-' }}</td>
                     <td>{{ \Carbon\Carbon::parse($absen->tanggal)->translatedFormat('l, d-m-Y') }}</td>
-                    <td>{{ $absen->pagi ?? '-' }}</td>
-                    <td>{{ $absen->siang ?? '-' }}</td>
-                    <td>{{ $absen->sore ?? '-' }}</td>
-                    <td>{{ $absen->keterangan ?? '-' }}</td>
                     <td>
-                        @if ($absen->file_keterangan)
-                            <a href="{{ asset('storage/izin/' . $absen->file_keterangan) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        @if($absen->izin)
+                            <span class="badge bg-warning">{{ $absen->izin->jenis }}</span>
+                        @else
+                            @if($absen->pagi)
+                                {{ $absen->pagi }}
+                                @if($absen->waktu_pagi)
+                                    <br><small class="text-muted">({{ \Carbon\Carbon::parse($absen->waktu_pagi)->format('H:i:s') }} WIB)</small>
+                                @endif
+                            @else
+                                -
+                            @endif
+                        @endif
+                    </td>
+                    <td>
+                        @if($absen->izin)
+                            <span class="badge bg-warning">{{ $absen->izin->jenis }}</span>
+                        @else
+                            @if($absen->siang)
+                                {{ $absen->siang }}
+                                @if($absen->waktu_siang)
+                                    <br><small class="text-muted">({{ \Carbon\Carbon::parse($absen->waktu_siang)->format('H:i:s') }} WIB)</small>
+                                @endif
+                            @else
+                                -
+                            @endif
+                        @endif
+                    </td>
+                    <td>
+                        @if($absen->izin)
+                            <span class="badge bg-warning">{{ $absen->izin->jenis }}</span>
+                        @else
+                            @if($absen->sore)
+                                {{ $absen->sore }}
+                                @if($absen->waktu_sore)
+                                    <br><small class="text-muted">({{ \Carbon\Carbon::parse($absen->waktu_sore)->format('H:i:s') }} WIB)</small>
+                                @endif
+                            @else
+                                -
+                            @endif
+                        @endif
+                    </td>
+                    <td>{{ $absen->keterangan ?? $absen->izin->keterangan ?? '-' }}</td>
+                    <td>
+                        @if ($absen->file_keterangan || ($absen->izin && $absen->izin->bukti_file))
+                            <a href="{{ asset('storage/' . ($absen->file_keterangan ?? $absen->izin->bukti_file)) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-file-earmark-text"></i> Lihat Surat
                             </a>
                         @else
@@ -57,6 +96,11 @@
                 @endif
             </tbody>
         </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        {{ $absensis->links() }}
     </div>
 </div>
 @endsection

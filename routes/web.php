@@ -18,7 +18,10 @@ use App\Http\Controllers\Admin\AdminAbsensiController;
 use App\Http\Controllers\Admin\LogbookBackendController;
 use App\Http\Controllers\Admin\LaporanBackendController;
 use App\Http\Controllers\Admin\SertifikatBackendController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\LaporanTriwulanController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\PembimbingController;
+use App\Http\Controllers\Pembimbing\PembimbingController as PembimbingDashboardController;
 
 
 
@@ -26,24 +29,61 @@ Route::get('/', function () {
     return view('landing.index');
 });
 
+Route::get('/test-mail', function () {
+    Mail::raw('Tes kirim email dari SIMADIS', function ($m) {
+        $m->to('nurhalizamia5@gmail.com')->subject('Tes SIMADIS');
+    });
+    return 'OK';
+});
+
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
     }
+    if (auth()->user()->role === 'pembimbing') {
+        return redirect()->route('pembimbing.dashboard');
+    }
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-Route::redirect('/dashboard', '/peserta/dashboard')->name('dashboard');
+
+// Pembimbing Routes
+Route::middleware(['auth', 'role:pembimbing'])->prefix('pembimbing')->name('pembimbing.')->group(function () {
+    Route::get('/dashboard', [PembimbingDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/absensi', [PembimbingDashboardController::class, 'absensi'])->name('absensi');
+    Route::delete('/absensi/{id}', [PembimbingDashboardController::class, 'destroyAbsensi'])->name('absensi.destroy');
+    Route::get('/absensi/export', [PembimbingDashboardController::class, 'exportAbsensi'])->name('absensi.export');
+    Route::get('/logbook', [PembimbingDashboardController::class, 'logbook'])->name('logbook');
+    Route::get('/logbook/export', [PembimbingDashboardController::class, 'exportLogbook'])->name('logbook.export');
+    Route::get('/logbook/{id}/review', [PembimbingDashboardController::class, 'reviewLogbook'])->name('logbook.review');
+    Route::get('/laporan', [PembimbingDashboardController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan-akhir', [PembimbingDashboardController::class, 'laporan'])->name('laporan-akhir');
+    Route::delete('/laporan-akhir/{id}', [PembimbingDashboardController::class, 'destroyLaporan'])->name('laporan-akhir.destroy');
+    Route::get('/laporan-akhir/export', [PembimbingDashboardController::class, 'exportLaporan'])->name('laporan-akhir.export');
+    Route::post('/laporan-akhir/{id}/review', [PembimbingDashboardController::class, 'reviewLaporan'])->name('laporan-akhir.review');
+});
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+    
+    // Pembimbing Management Routes
+    Route::resource('pembimbing', PembimbingController::class)->names([
+        'index' => 'admin.pembimbing.index',
+        'create' => 'admin.pembimbing.create',
+        'store' => 'admin.pembimbing.store',
+        'show' => 'admin.pembimbing.show',
+        'edit' => 'admin.pembimbing.edit',
+        'update' => 'admin.pembimbing.update',
+        'destroy' => 'admin.pembimbing.destroy'
+    ]);
+    Route::post('/pembimbing/{pembimbing}/assign-mahasiswa', [PembimbingController::class, 'assignMahasiswa'])->name('admin.pembimbing.assign-mahasiswa');
 });
 
 //Register routes (accessible to guests)
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dokumen', [DokumenController::class, 'create'])->name('dokumen.create');
@@ -87,6 +127,8 @@ Route::post('/izin/store', [AbsensiController::class, 'storeIzin'])->name('izin.
     Route::post('/laporan-akhir', [LaporanAkhirController::class, 'store'])->name('laporan-akhir.store');
     Route::get('/laporan-akhir/download/{type}', [LaporanAkhirController::class, 'download'])->name('laporan-akhir.download');
     Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('unduh_sertifikat');
+       //Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('unduh_sertifikat');
+    Route::get('/sertifikat/generate', [SertifikatController::class, 'generate'])->name('sertifikat.generate');
     Route::get('/sertifikat/download', [SertifikatController::class, 'download'])->name('sertifikat.download');
 
 });
@@ -94,55 +136,7 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::post('/absensi', [AbsensiController::class, 'store'])->name('absensi.store');
 });
 
-
-//  Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-   
-    //biodata lengkapi
-    
-    // Route::get('/biodata/edit', [BiodataController::class, 'edit'])->name('biodata.edit');
-    // Route::put('/biodata/update', [BiodataController::class, 'update'])->name('biodata.update');
-
-
-    // Route::get('/dokumen', [DokumenController::class, 'create'])->name('dokumen.create');
-    // Route::post('/dokumen', [DokumenController::class, 'store'])->name('dokumen.store');
-
-
-    //status pendaftaran
-
-        // Route::get('/status-pendaftaran',[StatusController::class, 'status'])->name('pendaftaran.status');
-        // Route::post('/kofirmasi-ketersediaan/{id}', [StatusController::class, 'konfirmasiKetersediaan'])->name('status.konfirmasi');
-        // Route::get('/unduh-surat/{id}',[StatusController::class,'unduhSurat'])->name('status.unduh_surat');
-    
-    //peserta
-        //Route::get('/absensi', [AbsensiController::class, 'index'])->name('user.absensi');
-        //Route::post('/absensi', [AbsensiController::class, 'store']);
-
-        // Route::get('/izin', [IzinController::class, 'index'])->name('user.izin');
-        // Route::post('/izin', [IzinController::class, 'store']);
-
-        //Route::resource('/logbook', LogbookController::class)->names('user.logbook');
-        //Route::resource('/laporan', LaporanAkhirController::class)->names('user.laporan');
-        //Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('user.sertifikat');
-        //Route::get('/sertifikat/download', [SertifikatController::class, 'download'])->name('user.sertifikat.download');
-
-
-    //Login
-        // Route::get('/login',[LoginController::class, 'showLoginForm']) ->name('login');
-        // Route::post('/login',[LoginController::class, 'login'])->name('login.custom');
-
-// Route::get('/dokumen/create', [DokumenController::class, 'create'])->name('dokumen.create');
-
-    
-//Route::get('/biodata', [BiodataController::class, 'create']);
-
-// });
-
-
 Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
 
     //admin
@@ -172,11 +166,27 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     // Tampilkan tabel sertifikat
  Route::get('/sertifikat', [SertifikatBackendController::class, 'index'])->name('admin.sertifikat');
-    Route::post('/sertifikat', [SertifikatBackendController::class, 'store'])->name('admin.sertifikat.store');
-    Route::get('/sertifikat/{id}/edit', [SertifikatBackendController::class, 'edit'])->name('admin.sertifikat.edit');
-    Route::put('/sertifikat/{id}', [SertifikatBackendController::class, 'update'])->name('admin.sertifikat.update');
+  Route::post('/sertifikat', [SertifikatBackendController::class, 'store'])->name('admin.sertifikat.store');
+    Route::get('/sertifikat/generate/{userId}', [SertifikatBackendController::class, 'generate'])->name('admin.sertifikat.generate');
     Route::get('/sertifikat/{id}/download', [SertifikatBackendController::class, 'download'])->name('admin.sertifikat.download');
-    
+
+    Route::get('/pembimbing', [PembimbingController::class, 'index'])->name('admin.pembimbing.index');
+
+    // Laporan Triwulanan Routes
+    Route::prefix('laporan-triwulan')->name('admin.laporan-triwulan.')->group(function () {
+        Route::get('/', [LaporanTriwulanController::class, 'index'])->name('index');
+        Route::get('/create', [LaporanTriwulanController::class, 'create'])->name('create');
+        Route::post('/', [LaporanTriwulanController::class, 'store'])->name('store');
+        Route::get('/{laporanTriwulan}', [LaporanTriwulanController::class, 'show'])->name('show');
+        Route::get('/{laporanTriwulan}/edit', [LaporanTriwulanController::class, 'edit'])->name('edit');
+        Route::put('/{laporanTriwulan}', [LaporanTriwulanController::class, 'update'])->name('update');
+        Route::delete('/{laporanTriwulan}', [LaporanTriwulanController::class, 'destroy'])->name('destroy');
+        Route::get('/{laporanTriwulan}/download', [LaporanTriwulanController::class, 'downloadPdf'])->name('download');
+        Route::post('/{laporanTriwulan}/regenerate', [LaporanTriwulanController::class, 'regenerateData'])->name('regenerate');
+
+
+    });
+
     
     });
 

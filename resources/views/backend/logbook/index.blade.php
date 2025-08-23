@@ -52,5 +52,10 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        {{ $logbooks->links() }}
+    </div>
 </div>
 @endsection

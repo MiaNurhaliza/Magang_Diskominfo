@@ -1,65 +1,6 @@
 @extends('layouts.peserta')
 
 @section('content')
-<style>
-    /* Responsive Styles */
-    @media (max-width: 992px) {
-        .hero-title {
-            font-size: 1.5rem;
-        }
-        .hero-sub, .hero-org {
-            font-size: 0.9rem;
-        }
-        .section-title {
-            font-size: 1.3rem;
-        }
-        .section-sub {
-            font-size: 0.85rem;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .hero-title {
-            font-size: 1.3rem;
-        }
-        .hero-illus {
-            max-width: 80%;
-            margin: 0 auto;
-            display: block;
-        }
-        .info-title {
-            font-size: 1rem;
-        }
-        .list-dots li, .time-list li {
-            font-size: 0.85rem;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .hero {
-            padding: 1rem;
-        }
-        .hero-title {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-        .hero-sub, .hero-org {
-            font-size: 0.8rem;
-        }
-        .section-title {
-            font-size: 1.2rem;
-            margin-top: 1rem;
-        }
-        .info-card {
-            padding: 0.75rem;
-        }
-        .info-icon {
-            width: 2rem;
-            height: 2rem;
-            font-size: 1rem;
-        }
-    }
-</style>
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-9 py-4">

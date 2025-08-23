@@ -72,12 +72,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($absensis as $i => $row)
+                            @foreach($paginatedAbsensis as $i => $row)
                             <tr>
-                                <td>{{ $i+1 }}</td>
+                                <td>{{ ($paginatedAbsensis->currentPage() - 1) * $paginatedAbsensis->perPage() + $i + 1 }}</td>
                                 <td>{{ \Carbon\Carbon::parse($row->tanggal)->translatedFormat('l, d F Y') }}</td>
                                 <td>
-                                    @if($row->pagi)
+                                    @if($row->izin)
+                                        <span class="badge bg-warning">{{ $row->izin->jenis }}</span>
+                                    @elseif($row->pagi)
                                         <span class="badge bg-success">{{ $row->pagi }}</span>
                                     @elseif(isset($row->is_today) && $row->is_today && $bolehAbsen)
                                         <button class="btn btn-sm btn-outline-success absen-btn"
@@ -91,7 +93,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($row->siang)
+                                    @if($row->izin)
+                                        <span class="badge bg-warning">{{ $row->izin->jenis }}</span>
+                                    @elseif($row->siang)
                                         <span class="badge bg-warning text-dark">{{ $row->siang }}</span>
                                     @elseif(isset($row->is_today) && $row->is_today && $bolehAbsen)
                                         <button class="btn btn-sm btn-outline-warning absen-btn"
@@ -105,7 +109,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($row->sore)
+                                    @if($row->izin)
+                                        <span class="badge bg-warning">{{ $row->izin->jenis }}</span>
+                                    @elseif($row->sore)
                                         <span class="badge bg-primary">{{ $row->sore }}</span>
                                     @elseif(isset($row->is_today) && $row->is_today && $bolehAbsen)
                                         <button class="btn btn-sm btn-outline-primary absen-btn"
@@ -122,6 +128,21 @@
                             @endforeach
                         </tbody>
                     </table>
+                    
+                    {{-- Pagination --}}
+                    @if($paginatedAbsensis->hasPages())
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <p class="text-muted mb-0">
+                                Menampilkan {{ $paginatedAbsensis->firstItem() }} sampai {{ $paginatedAbsensis->lastItem() }} 
+                                dari {{ $paginatedAbsensis->total() }} data
+                            </p>
+                        </div>
+                        <div>
+                            {{ $paginatedAbsensis->links() }}
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -146,7 +167,7 @@
                     <p id="displaySesi" class="mb-3 text-muted"></p>
                     
                     <div class="form-check mb-2">
-                        <input type="radio" class="form-check-input" name="status" value="Hadir" id="hadir" required checked>
+                        <input type="radio" class="form-check-input" name="status" value="Hadir" id="hadir" required>
                         <label class="form-check-label" for="hadir">Hadir</label>
                     </div>
                     
@@ -189,8 +210,9 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="suratKeterangan" class="form-label">Upload Surat Keterangan Sakit</label>
+                        <label for="suratKeterangan" class="form-label">Upload Surat Keterangan</label>
                         <input type="file" class="form-control" id="suratKeterangan" name="surat_keterangan">
+                        <small class="text-muted">Format: PDF, JPG, JPEG, PNG (Max: 2MB)</small>
                     </div>
                     
                     <div class="mb-3">
@@ -202,7 +224,7 @@
                         <p class="mb-0 fw-bold">Keterangan:</p>
                         <ol class="ps-3 mb-0">
                             <li>Silahkan Pilih jenis izin anda</li>
-                            <li>Upload Bukti keterangan dokter untuk "Izin Sakit"</li>
+                            <li>Upload Bukti keterangan sesuai dengan jenis izin anda</li>
                             <li>Silahkan isi keterangan alasan izin anda</li>
                         </ol>
                     </div>
@@ -233,10 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('displayTanggal').textContent = tanggalDisplay;
             document.getElementById('displaySesi').textContent = 'Sesi: ' + sesi.charAt(0).toUpperCase() + sesi.slice(1);
             
-            // Reset radio buttons
-            document.querySelectorAll('input[name="status"]').forEach(radio => {
-                radio.checked = false;
-            });
+            // Set default radio button to "Hadir"
+            document.getElementById('hadir').checked = true;
             
             absenModal.show();
         });
@@ -245,40 +265,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Tampilkan/sembunyikan field upload surat berdasarkan jenis izin
 document.getElementById('jenisIzin').addEventListener('change', function() {
-    var suratField = document.getElementById('suratKeterangan').parentElement;
+    const suratField = document.getElementById('suratKeterangan');
+    const suratLabel = suratField.previousElementSibling;
+    const suratHint = suratField.nextElementSibling;
+    
     if (this.value === 'Sakit') {
-        suratField.style.display = 'block';
+        suratField.required = true;
+        suratLabel.textContent = 'Upload Surat Keterangan Sakit (Wajib)';
     } else {
-        suratField.style.display = 'none';
+        suratField.required = false;
+        suratLabel.textContent = 'Upload Surat Keterangan (Opsional)';
     }
 });
 </script>
-
-<style>
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-.btn-outline-primary {
-    color: #007bff;
-    border-color: #007bff;
-}
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-.btn-outline-success {
-    color: #28a745;
-    border-color: #28a745;
-}
-.btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: #212529;
-}
-.btn-outline-warning {
-    color: #ffc107;
-    border-color: #ffc107;
-}
-</style>
 @endsection

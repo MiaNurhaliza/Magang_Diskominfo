@@ -68,8 +68,8 @@
     @if(is_null($item->ketersediaan))
         <form action="{{ route('pendaftaran.konfirmasi', $item->id) }}" method="POST" class="mt-2">
             @csrf
-            <button name="ketersediaan" value="ya" class="btn btn-success btn-sm">Diterima</button>
-            <button name="ketersediaan" value="tidak" class="btn btn-danger btn-sm">Ditolak</button>
+            {{-- <button name="ketersediaan" value="ya" class="btn btn-success btn-sm">Diterima</button>
+            <button name="ketersediaan" value="tidak" class="btn btn-danger btn-sm">Ditolak</button> --}}
         </form>
     @else
         <div class="mt-1">

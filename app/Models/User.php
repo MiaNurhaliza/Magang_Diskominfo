@@ -63,8 +63,16 @@ public function status() {
 public function biodata() {
     return $this->hasOne(Biodata::class);
 }
+public function logbooks() {
+    return $this->hasMany(Logbook::class);
+}
+
 public function lognbook() {
     return $this->hasOne(Logbook::class);
+}
+
+public function absensis() {
+        return $this->hasMany(Absensi::class);
 }
 
 public function absensi() {
@@ -82,5 +90,21 @@ public function laporanAkhir() {
     return $this->hasOne(LaporanAkhir::class);
 }
 
+public function pembimbing() {
+    return $this->hasOne(Pembimbing::class, 'email', 'email');
+}
+
+// Helper methods untuk role
+public function isAdmin() {
+    return $this->role === 'admin';
+}
+
+public function isPeserta() {
+    return $this->role === 'user' || $this->role === 'peserta';
+}
+
+public function isPembimbing() {
+    return $this->role === 'pembimbing';
+}
 
 }

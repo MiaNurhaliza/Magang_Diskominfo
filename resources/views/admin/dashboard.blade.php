@@ -3,54 +3,6 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-<style>
-    /* Responsive Styles */
-    @media (max-width: 1280px) {
-        .text-3xl {
-            font-size: 1.75rem;
-        }
-        .text-2xl {
-            font-size: 1.5rem;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        .text-3xl {
-            font-size: 1.5rem;
-        }
-        .text-2xl {
-            font-size: 1.25rem;
-        }
-        .overflow-x-auto {
-            overflow-x: auto;
-        }
-    }
-    
-    @media (max-width: 640px) {
-        .container {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-        .px-6 {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-        .px-5 {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-        .text-3xl {
-            font-size: 1.25rem;
-        }
-        .text-2xl {
-            font-size: 1.125rem;
-        }
-    }
-</style>
 <div class="container px-6 py-8 mx-auto">
     <h3 class="text-3xl font-medium text-gray-700">Dashboard Admin</h3>
     

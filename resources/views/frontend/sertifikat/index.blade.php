@@ -99,21 +99,39 @@
                                     </td>
                                 </tr>
                                 @else
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">
+                                <!-- <tr>
+                                    {{-- <td colspan="3" class="text-center text-muted">
                                         <i class="fas fa-certificate me-2"></i>
-                                        Sertifikat belum tersedia. Silakan hubungi admin.
-                                    </td>
-                                </tr>
+                                        @if($biodata && $biodata->status === 'Diterima')
+                                            Sertifikat belum dibuat. Klik tombol "Generate Sertifikat" untuk membuat.
+                                        @else
+                                            Sertifikat akan tersedia setelah status pendaftaran diterima.
+                                        @endif
+                                    </td> --}}
+                                </tr> -->
                                 @endif
                             </tbody>
                         </table>
                     </div>
 
+                    @if(!$sertifikat && $biodata && $biodata->status === 'Diterima')
+                    <!-- <div class="text-center mt-3">
+                        <a href="{{ route('sertifikat.generate') }}" class="btn btn-primary">
+                            <i class="fas fa-certificate me-1"></i>
+                            Generate Sertifikat
+                        </a>
+                    </div> -->
+                    @endif
+
                     @if(!$sertifikat)
                     <div class="alert alert-info mt-3">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Informasi:</strong> Sertifikat akan tersedia setelah admin memproses dan mengupload sertifikat Anda.
+                        <strong>Informasi:</strong> 
+                        @if($biodata && $biodata->status === 'Diterima')
+                            Sertifikat akan diberikan oleh admin jika anda sudah mengupload sertifikat akhir magang
+                        @else
+                            Sertifikat akan tersedia setelah status pendaftaran diterima dan biodata lengkap.
+                        @endif
                     </div>
                     @endif
                 </div>

@@ -34,11 +34,16 @@
         .right-side {
             flex: 1;
             background-color: #f0f7ff;
+            background-image: url('{{ asset('images/gradasi.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             padding: 2rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
         .logo-container {
             display: flex;
@@ -74,6 +79,8 @@
             max-width: 80%;
             margin: 0 auto;
             display: block;
+            position: relative;
+            z-index: 2;
         }
         .tagline {
             font-size: 1.5rem;
@@ -163,9 +170,9 @@
     <div class="login-container">
         <div class="left-side">
             <div class="logo-container">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo Provinsi Riau" onerror="this.src='https://diskominfotik.riau.go.id/wp-content/uploads/2017/04/logo-kominfo.png'; this.onerror=null;">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" onerror="this; this.onerror=null;">
                 <div>
-                    <div class="fw-bold">PEMERINTAH RIAU</div>
+                    <div class="fw-bold">PEMERINTAH KOTA BUKITTINGGI</div>
                     <div class="small">Provinsi Sumatera Barat</div>
                 </div>
             </div>
@@ -228,7 +235,7 @@
         </div>
         
         <div class="right-side">
-            <img src="{{ asset('images/masuk.png') }}" alt="Illustration" class="illustration-img" onerror="this.src='https://img.freepik.com/free-vector/computer-login-concept-illustration_114360-7962.jpg'; this.onerror=null;">
+            <img src="{{ asset('images/image login.png') }}" alt="Illustration" class="illustration-img" onerror="this.src='https://img.freepik.com/free-vector/computer-login-concept-illustration_114360-7962.jpg'; this.onerror=null;">
         </div>
     </div>
     

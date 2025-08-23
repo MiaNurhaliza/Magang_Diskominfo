@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Biodata;
+use App\Services\NotificationService;
 
 class AdminPendaftarController extends Controller
 {
     public function index()
     {
-        $pendaftars = Biodata::with(['user', 'dokumen'])->latest()->get();
+        $pendaftars = Biodata::with(['user', 'dokumen'])->latest()->paginate(10);
         return view('backend.pendaftar.index', compact('pendaftars'));
     }
 
@@ -38,6 +39,7 @@ class AdminPendaftarController extends Controller
         ]);
 
         $pendaftar = Biodata::findOrFail($id);
+        $oldStatus = $pendaftar->status; // Store old status for notification
 
         // Simpan status
         $pendaftar->status = $request->status;
@@ -58,7 +60,11 @@ class AdminPendaftarController extends Controller
 
         $pendaftar->save();
 
-        return redirect()->back()->with('success', 'Status pendaftar berhasil diperbarui.');
+        // Send email notification for status changes
+        $notificationService = new NotificationService();
+        $notificationService->sendStatusNotification($pendaftar, $oldStatus);
+
+        return redirect()->back()->with('success', 'Status pendaftar berhasil diperbarui dan notifikasi email telah dikirim.');
     }
 
     public function updateJadwal(Request $request, $id)
@@ -69,12 +75,18 @@ class AdminPendaftarController extends Controller
     ]);
 
     $pendaftar = Biodata::findOrFail($id);
+    $oldStatus = $pendaftar->status;
+    
     $pendaftar->tanggal_mulai = $request->tanggal_mulai;
     $pendaftar->tanggal_selesai = $request->tanggal_selesai;
-    $pendaftar->status = 'Jadwal Dirubah';
+    $pendaftar->status = 'jadwal_dialihkan';
     $pendaftar->save();
 
-    return redirect()->back()->with('success', 'Jadwal magang berhasil diperbarui.');
+    // Send email notification for schedule change
+    $notificationService = new NotificationService();
+    $notificationService->sendStatusNotification($pendaftar, $oldStatus);
+
+    return redirect()->back()->with('success', 'Jadwal magang berhasil diperbarui dan notifikasi email telah dikirim.');
 }
 
 }

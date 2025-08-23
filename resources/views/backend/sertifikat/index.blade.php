@@ -1,46 +1,6 @@
 @extends('layouts.backend')
 
 @section('content')
-<style>
-    @media (max-width: 768px) {
-        .container {
-            padding: 10px;
-        }
-        h4 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem !important;
-        }
-        .btn-sm {
-            padding: 0.2rem 0.4rem;
-            font-size: 0.75rem;
-        }
-        .modal-dialog {
-            margin: 0.5rem;
-        }
-        .form-label {
-            font-size: 0.9rem;
-        }
-        .form-control, .form-control-plaintext {
-            font-size: 0.9rem;
-        }
-        .form-text {
-            font-size: 0.8rem;
-        }
-    }
-    @media (max-width: 576px) {
-        .table {
-            font-size: 0.8rem;
-        }
-        .btn-sm {
-            padding: 0.15rem 0.3rem;
-            font-size: 0.7rem;
-        }
-        .modal-title {
-            font-size: 1.1rem;
-        }
-    }
-</style>
-
 <div class="container mt-4">
     <h4 class="mb-4">Sertifikat Magang Peserta</h4>
 
@@ -138,6 +98,11 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        {{ $users->links() }}
     </div>
 </div>
 @endsection

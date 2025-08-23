@@ -10,7 +10,7 @@ class IzinBackendController extends Controller
 {
     public function index()
     {
-        $izins = Izin::with('user')->latest('tanggal')->get();
+        $izins = Izin::with('user')->latest('tanggal')->paginate(10);
         return view('admin.izin.index', compact('izins'));
     }
 

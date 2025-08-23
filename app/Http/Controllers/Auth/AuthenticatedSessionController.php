@@ -35,6 +35,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('admin.dashboard', absolute: false));
         }
 
+        if ($user->role === 'pembimbing') {
+            return redirect()->intended(route('pembimbing.dashboard', absolute: false));
+        }
+
         // Cek apakah user sudah melengkapi biodata
         $biodata = $user->biodata;
         

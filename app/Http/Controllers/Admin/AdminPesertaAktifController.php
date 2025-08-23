@@ -11,7 +11,7 @@ class AdminPesertaAktifController extends Controller
 {
     public function index()
     {
-        $pesertas = biodata::where ('status', 'diterima')->get();
+        $pesertas = biodata::where ('status', 'diterima')->paginate(10);
         
         return view('backend.peserta_aktif.index', compact('pesertas'));
     }

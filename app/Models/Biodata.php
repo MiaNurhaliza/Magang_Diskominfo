@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Biodata extends Model
 {
@@ -23,6 +24,11 @@ public function logbook()
     return $this->hasMany(Logbook::class, 'user_id', 'user_id');
 }
 
+public function logbooks()
+{
+    return $this->hasMany(Logbook::class, 'user_id', 'user_id');
+}
+
     public function status()
     {
         return $this->hasOne(Status::class);
@@ -30,6 +36,11 @@ public function logbook()
     public function laporan_akhir()
     {
         return $this->hasOne(Laporan_akhir::class, 'user_id', 'user_id');
+    }
+
+    public function laporanAkhir()
+    {
+        return $this->hasOne(LaporanAkhir::class, 'user_id', 'user_id');
     }
     public function dokumen()
     {
@@ -75,6 +86,16 @@ protected $casts = [
         'status',
         'alasan_status',
 ];
+
+    /**
+     * Relasi many-to-many dengan pembimbing
+     */
+    public function pembimbings(): BelongsToMany
+    {
+        return $this->belongsToMany(Pembimbing::class, 'pembimbing_mahasiswa', 'biodata_id', 'pembimbing_id')
+                    ->withPivot(['tanggal_mulai', 'tanggal_selesai', 'status_bimbingan'])
+                    ->withTimestamps();
+    }
 
 
 }

@@ -7,9 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Absensi extends Model
 {
-    
     use HasFactory;
-    protected $fillable = ['user_id', 'biodata_id', 'tanggal', 'pagi', 'siang', 'sore'];
+    protected $fillable = [
+        'user_id', 
+        'biodata_id', 
+        'tanggal', 
+        'pagi', 
+        'siang', 
+        'sore',
+        'waktu_pagi',
+        'waktu_siang', 
+        'waktu_sore',
+        'keterangan',
+        'file_keterangan',
+        'izin_id',
+        'status'
+    ];
 
     public function user()
     {
@@ -18,8 +31,11 @@ class Absensi extends Model
 
     public function biodata()
     {
-    return $this->belongsTo(Biodata::class, 'biodata_id');
+        return $this->belongsTo(Biodata::class, 'biodata_id');
     }
-    
-    
+
+    public function izin()
+    {
+        return $this->belongsTo(Izin::class);
+    }
 }

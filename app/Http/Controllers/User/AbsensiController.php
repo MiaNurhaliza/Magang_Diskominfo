@@ -30,46 +30,77 @@ class AbsensiController extends Controller
         // Cek apakah hari ini dalam periode magang dan bukan weekend
         $bolehAbsen = $today->between($tanggalMulai, $tanggalSelesai) && !$today->isWeekend();
 
-        // Ambil semua riwayat absensi yang sudah ada
-        $riwayatAbsensi = Absensi::where('biodata_id', $biodataId)
-            ->orderBy('tanggal', 'desc')
-            ->get();
-
-        // Cek absensi hari ini
-        $absensiHariIni = Absensi::where('biodata_id', $biodataId)
-            ->whereDate('tanggal', $today)
-            ->first();
-
-        // Jika belum ada absensi hari ini dan boleh absen, tambahkan ke list
+        // Generate attendance records up to today only (not future days)
         $absensis = collect();
+        $currentDate = $tanggalMulai->copy();
         
-        if ($bolehAbsen) {
-            if ($absensiHariIni) {
-                $absensiHariIni->is_today = true;
-                $absensis->push($absensiHariIni);
-            } else {
-                $absensis->push((object) [
-                    'id' => null,
-                    'biodata_id' => $biodataId,
-                    'tanggal' => $today->format('Y-m-d'),
-                    'pagi' => null,
-                    'siang' => null,
-                    'sore' => null,
-                    'is_today' => true
-                ]);
-            }
-        }
-
-        // Tambahkan riwayat absensi sebelumnya
-        foreach ($riwayatAbsensi as $absensi) {
-            if (!$today->isSameDay(Carbon::parse($absensi->tanggal))) {
-                $absensi->is_today = false;
+        // Get existing attendance records
+        $existingAbsensi = Absensi::where('biodata_id', $biodataId)
+            ->with('izin')
+            ->get()
+            ->keyBy('tanggal');
+        
+        // Only show dates from start date up to today (or end date if today is past end date)
+        $endDate = $today->lt($tanggalSelesai) ? $today : $tanggalSelesai;
+        
+        while ($currentDate->lte($endDate)) {
+            // Skip weekends
+            if (!$currentDate->isWeekend()) {
+                $dateString = $currentDate->format('Y-m-d');
+                
+                // Check if attendance record exists for this date
+                if (isset($existingAbsensi[$dateString])) {
+                    $absensi = $existingAbsensi[$dateString];
+                    $absensi->is_today = $currentDate->isSameDay($today);
+                    $absensi->is_past = $currentDate->lt($today);
+                    $absensi->is_future = false; // No future dates shown
+                } else {
+                    // Create empty attendance record for display (only for today and past)
+                    $absensi = (object) [
+                        'id' => null,
+                        'biodata_id' => $biodataId,
+                        'tanggal' => $dateString,
+                        'pagi' => null,
+                        'siang' => null,
+                        'sore' => null,
+                        'waktu_pagi' => null,
+                        'waktu_siang' => null,
+                        'waktu_sore' => null,
+                        'keterangan' => null,
+                        'izin' => null,
+                        'is_today' => $currentDate->isSameDay($today),
+                        'is_past' => $currentDate->lt($today),
+                        'is_future' => false
+                    ];
+                }
+                
                 $absensis->push($absensi);
             }
+            
+            $currentDate->addDay();
         }
+        
+        // Sort by date descending (newest first)
+        $absensis = $absensis->sortByDesc('tanggal');
+
+        // Convert to paginator with 10 items per page
+        $currentPage = request()->get('page', 1);
+        $perPage = 10;
+        $currentItems = $absensis->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        
+        $paginatedAbsensis = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $absensis->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
 
         return view('frontend.absensi.index', compact(
-            'absensis',
+            'paginatedAbsensis',
             'bolehAbsen',
             'biodata'
         ));
@@ -124,13 +155,29 @@ class AbsensiController extends Controller
             $filePath = $request->file('surat_keterangan')->store('izin', 'public');
         }
 
-        Izin::create([
+        // Create izin record
+        $izin = Izin::create([
             'user_id' => Auth::id(),
             'jenis' => $request->jenis_izin,
             'tanggal' => $request->tanggal_izin,
             'keterangan' => $request->keterangan,
             'bukti_file' => $filePath,
         ]);
+
+        // Update or create absensi record
+        $absensi = Absensi::firstOrNew([
+            'biodata_id' => Auth::user()->biodata->id,
+            'tanggal' => $request->tanggal_izin
+        ]);
+
+        // Set status izin untuk semua sesi
+        $absensi->pagi = $request->jenis_izin;
+        $absensi->siang = $request->jenis_izin;
+        $absensi->sore = $request->jenis_izin;
+        $absensi->keterangan = $request->keterangan;
+        $absensi->file_keterangan = $filePath;
+        $absensi->izin_id = $izin->id;
+        $absensi->save();
 
         return back()->with('success', 'Izin berhasil diajukan');
     }

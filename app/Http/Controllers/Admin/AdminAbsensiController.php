@@ -10,7 +10,7 @@ class AdminAbsensiController extends Controller
 {
     public function index()
     {
-        $absensis = Absensi::with(['user', 'biodata'])->get();
+        $absensis = Absensi::with(['user', 'biodata'])->paginate(10);
         return view('backend.absensi.index', compact('absensis'));
     }
 

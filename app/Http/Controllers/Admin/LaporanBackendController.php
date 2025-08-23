@@ -10,7 +10,7 @@ class LaporanBackendController extends Controller
 {
     public function index()
     {
-        $laporans = LaporanAkhir::with('user')->latest()->get();
+        $laporans = LaporanAkhir::with('user')->latest()->paginate(10);
         return view('backend.laporan_akhir.index', compact('laporans'));
     }
 

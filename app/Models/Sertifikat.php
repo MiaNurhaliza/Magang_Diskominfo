@@ -9,7 +9,7 @@ class Sertifikat extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','tanggal_mulai','tanggal_selesai','file_sertifikat'];
+    protected $fillable = ['user_id','nomor_sertifikat','tanggal_mulai','tanggal_selesai','file_sertifikat'];
 
     public function user () {
         return $this ->belongsTo(User::class);

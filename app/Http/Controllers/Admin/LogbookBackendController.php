@@ -10,7 +10,7 @@ class LogbookBackendController extends Controller
 {
     public function index()
     {
-        $logbooks = Logbook::with('user')->latest('tanggal')->get();
+        $logbooks = Logbook::with('user')->latest('tanggal')->paginate(10);
         return view('backend.logbook.index', compact('logbooks'));
     }
     public function destroy($id)

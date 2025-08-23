@@ -61,5 +61,10 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        {{ $laporans->links() }}
+    </div>
 </div>
 @endsection
