@@ -71,19 +71,51 @@
                         <div class="card-body">
                             <h4 class="card-title mb-4">Laporan Akhir Magang Anda</h4>
                             
-                            <div class="alert alert-success d-flex align-items-center mb-3">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <div>
-                                    <strong>File laporan berhasil diupload pada: {{ $laporan->created_at->format('d-m-Y') }}</strong>
+                            <!-- Status Laporan -->
+                            @if($laporan->status === 'pending')
+                                <div class="alert alert-warning d-flex align-items-center mb-3">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <div>
+                                        <strong>Status: Menunggu Review Pembimbing</strong><br>
+                                        <small>Laporan Anda sedang direview oleh pembimbing. Mohon tunggu konfirmasi.</small>
+                                    </div>
                                 </div>
-                            </div>
+                            @elseif($laporan->status === 'approved')
+                                <div class="alert alert-success d-flex align-items-center mb-3">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <div>
+                                        <strong>Status: Laporan Disetujui</strong><br>
+                                        <small>Selamat! Laporan Anda telah disetujui pada {{ $laporan->approved_at->format('d-m-Y H:i') }}. Sertifikat akan segera tersedia.</small>
+                                    </div>
+                                </div>
+                            @elseif($laporan->status === 'revision')
+                                <div class="alert alert-danger d-flex align-items-center mb-3">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div>
+                                        <strong>Status: Perlu Revisi</strong><br>
+                                        <small>Laporan Anda perlu direvisi. Silakan perbaiki sesuai catatan di bawah dan upload ulang.</small>
+                                    </div>
+                                </div>
+                                
+                                @if($laporan->revision_note)
+                                    <div class="alert alert-info mb-3">
+                                        <h6><i class="fas fa-sticky-note me-2"></i>Catatan Revisi dari Pembimbing:</h6>
+                                        <p class="mb-0">{{ $laporan->revision_note }}</p>
+                                    </div>
+                                @endif
+                            @endif
 
                             <div class="mb-3 d-flex align-items-center">
                                 <i class="fas fa-file-alt me-2"></i>
                                 <strong>Judul Laporan:</strong> {{ $laporan->judul_laporan }}
                             </div>
 
-                            <div class="d-flex gap-2">
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-calendar me-2"></i>
+                                <strong>Tanggal Upload:</strong> {{ $laporan->created_at->format('d-m-Y H:i') }}
+                            </div>
+
+                            <div class="d-flex gap-2 mb-3">
                                 <a href="{{ route('laporan-akhir.download', 'laporan') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-eye me-1"></i>
                                     Lihat Laporan
@@ -93,6 +125,57 @@
                                     Lihat Nilai
                                 </a>
                             </div>
+
+                            @if($laporan->status === 'revision')
+                                <div class="border-top pt-3">
+                                    <h5 class="mb-3">Upload Ulang Laporan</h5>
+                                    <form action="{{ route('laporan-akhir.store') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <div class="mb-3">
+                                            <label for="judul_laporan" class="form-label">Judul Laporan</label>
+                                            <input type="text" class="form-control @error('judul_laporan') is-invalid @enderror" 
+                                                   id="judul_laporan" name="judul_laporan" value="{{ old('judul_laporan', $laporan->judul_laporan) }}" required>
+                                            @error('judul_laporan')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+
+
+                                        <div class="mb-3">
+                                            <label for="file_laporan" class="form-label">Upload Laporan Baru</label>
+                                            <input type="file" class="form-control @error('file_laporan') is-invalid @enderror" 
+                                                   id="file_laporan" name="file_laporan" accept=".pdf" required>
+                                            <div class="form-text text-warning">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                Ukuran maksimal 5 MB format yang di perbolehkan: PDF
+                                            </div>
+                                            @error('file_laporan')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="file_nilai_magang" class="form-label">Penilaian Nilai Magang Baru</label>
+                                            <input type="file" class="form-control @error('file_nilai_magang') is-invalid @enderror" 
+                                                   id="file_nilai_magang" name="file_nilai_magang" accept=".pdf" required>
+                                            <div class="form-text text-warning">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                Ukuran maksimal 5 MB format yang di perbolehkan: PDF
+                                            </div>
+                                            @error('file_nilai_magang')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-upload me-1"></i>
+                                            Upload Ulang Laporan
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
 
                         </div>
                     </div>
@@ -131,14 +214,14 @@
                                     @enderror
                                 </div>
 
-                                <div class="mb-3">
+                                {{-- <div class="mb-3">
                                     <label for="pembimbing_industri" class="form-label">Pembimbing Industri</label>
                                     <input type="text" class="form-control @error('pembimbing_industri') is-invalid @enderror" 
                                            id="pembimbing_industri" name="pembimbing_industri" value="{{ old('pembimbing_industri') }}" required>
                                     @error('pembimbing_industri')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
+                                </div> --}}
 
                                 <div class="mb-3">
                                     <label for="file_laporan" class="form-label">Upload Laporan</label>

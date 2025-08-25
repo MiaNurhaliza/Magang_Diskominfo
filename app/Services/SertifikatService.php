@@ -11,6 +11,8 @@ class SertifikatService
 {
     public function generateSertifikat($userId)
     {
+        \Log::info("SertifikatService: generateSertifikat called for user ID: " . $userId);
+        
         // Ambil data user dan biodata
         $user = User::find($userId);
         $biodata = Biodata::where('user_id', $userId)->first();
@@ -19,26 +21,24 @@ class SertifikatService
             throw new \Exception('Data user atau biodata tidak ditemukan');
         }
         
-        // Path template PDF kosong
+        \Log::info("SertifikatService: User and biodata found");
+        
+        // Path template PDF
         $templatePath = storage_path('app/templates/sertifikat.pdf');
         
         if (file_exists($templatePath)) {
-            // Gunakan template PDF jika tersedia
+            \Log::info("SertifikatService: Using PDF template from: " . $templatePath);
             return $this->generateSertifikatFromPdfTemplate($userId);
         } else {
-            // Fallback ke HTML template
+            \Log::warning("SertifikatService: PDF template not found, falling back to HTML");
             return $this->generateSertifikatFromHtml($userId);
         }
     }
 
     public function generateSertifikatFromPdfTemplate($userId)
     {
-        // Cek apakah FPDI tersedia
-        if (!class_exists('\setasign\Fpdi\Fpdi')) {
-            // Jika FPDI tidak tersedia, gunakan HTML template
-            return $this->generateSertifikatFromHtml($userId);
-        }
-
+        \Log::info("SertifikatService: generateSertifikatFromPdfTemplate started");
+        
         $user = User::find($userId);
         $biodata = Biodata::where('user_id', $userId)->first();
         
@@ -46,77 +46,104 @@ class SertifikatService
             throw new \Exception('Data user atau biodata tidak ditemukan');
         }
         
-        // Path template PDF kosong
+        // Path template PDF
         $templatePath = storage_path('app/templates/sertifikat.pdf');
         
-        // Buat PDF baru menggunakan template
-        $pdf = new \setasign\Fpdi\Fpdi();
+        if (!file_exists($templatePath)) {
+            \Log::error("SertifikatService: Template PDF not found at: " . $templatePath);
+            throw new \Exception('Template PDF tidak ditemukan');
+        }
         
-        // Import halaman pertama dari template
-        $pageCount = $pdf->setSourceFile($templatePath);
-        $templateId = $pdf->importPage(1);
-        
-        // Tambah halaman baru
-        $pdf->AddPage('L'); // Landscape
-        $pdf->useTemplate($templateId);
-        
-        // Set font untuk menambahkan text
-        $pdf->SetFont('Arial', 'B', 20);
-        $pdf->SetTextColor(0, 0, 0);
-        
-        // Format tanggal
-        $tanggalMulai = \Carbon\Carbon::parse($biodata->tanggal_mulai)->translatedFormat('d F Y');
-        $tanggalSelesai = \Carbon\Carbon::parse($biodata->tanggal_selesai)->translatedFormat('d F Y');
+        \Log::info("SertifikatService: Template PDF found at: " . $templatePath);
         
         // Generate nomor sertifikat
         $nomorSertifikat = $this->generateNomorSertifikat();
         
-        // Nomor sertifikat
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->SetXY(0, 85); // Posisi nomor sertifikat
-        $pdf->Cell(0, 10, 'No: ' . $nomorSertifikat, 0, 1, 'C');
+        // Format tanggal
+        $tanggalMulai = \Carbon\Carbon::parse($biodata->tanggal_mulai)->translatedFormat('d F Y');
+        $tanggalSelesai = \Carbon\Carbon::parse($biodata->tanggal_selesai)->translatedFormat('d F Y');
+        $tanggalSekarang = \Carbon\Carbon::now()->translatedFormat('d F Y');
         
-        // Koordinat untuk nama (disesuaikan agar lebih ke tengah)
-        $pdf->SetFont('Arial', 'B', 20);
-        $pdf->SetXY(0, 110); // Geser ke kiri dari 105 ke 80
-        $pdf->Cell(0, 10, strtoupper($biodata->nama_lengkap), 0, 1, 'C');
+        \Log::info("SertifikatService: Data prepared - Name: " . $biodata->nama_lengkap . ", Dates: " . $tanggalMulai . " - " . $tanggalSelesai);
         
-        // Set font untuk informasi lainnya
-        $pdf->SetFont('Arial', '', 14);
-        
-        // Periode magang
-        $periode = $tanggalMulai . ' s/d ' . $tanggalSelesai;
-        $pdf->SetXY(0, 140); // Geser ke kiri dari 105 ke 80
-        $pdf->Cell(0, 10, $periode, 0, 1, 'C');
-        
-        // // Asal sekolah
-        // $pdf->SetXY(105, 155);
-        // $pdf->Cell(0, 10, $biodata->asal_sekolah, 0, 1, 'C');
-        
-        // // Jurusan
-        // $pdf->SetXY(105, 170);
-        // $pdf->Cell(0, 10, $biodata->jurusan, 0, 1, 'C');
-        
-        // Generate nama file
-        $fileName = 'sertifikat_' . str_replace(' ', '_', strtolower($user->name)) . '_' . date('Y-m-d') . '.pdf';
-        $filePath = 'sertifikat/' . $fileName;
-        
-        // Buat direktori jika belum ada
-        Storage::disk('public')->makeDirectory('sertifikat');
-        
-        // Simpan PDF
-        $fullPath = storage_path('app/public/' . $filePath);
-        $pdf->Output($fullPath, 'F');
-        
-        // Return data untuk disimpan ke database
-        return [
-            'file_path' => $filePath,
-            'nomor_sertifikat' => $nomorSertifikat
-        ];
+        try {
+            // Cek apakah FPDI tersedia
+            if (!class_exists('\setasign\Fpdi\Fpdi')) {
+                \Log::warning("SertifikatService: FPDI not available, falling back to HTML");
+                return $this->generateSertifikatFromHtml($userId);
+            }
+            
+            // Buat instance FPDI
+            $pdf = new \setasign\Fpdi\Fpdi();
+            
+            // Import halaman dari template
+            $pageCount = $pdf->setSourceFile($templatePath);
+            \Log::info("SertifikatService: Template has " . $pageCount . " pages");
+            
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                // Import halaman
+                $templateId = $pdf->importPage($pageNo);
+                $pdf->AddPage('L', 'A4'); // Landscape orientation
+                $pdf->useTemplate($templateId);
+                
+                // Set font
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->SetTextColor(0, 0, 0);
+                
+                // Tambahkan teks ke PDF (koordinat disesuaikan dengan template)
+                // Nomor sertifikat (kanan atas)
+                $pdf->SetXY(220, 15);
+                $pdf->SetFont('Arial', '', 10);
+                $pdf->Write(0, 'No: ' . $nomorSertifikat);
+                
+                // Nama peserta (tengah)
+                $pdf->SetFont('Arial', 'B', 18);
+                $pdf->SetXY(50, 120);
+                $pdf->Cell(200, 10, $biodata->nama_lengkap, 0, 0, 'C');
+                
+                // Periode magang
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->SetXY(50, 145);
+                $pdf->Cell(200, 10, $tanggalMulai . ' s/d ' . $tanggalSelesai, 0, 0, 'C');
+                
+                // Tanggal penerbitan (kiri bawah)
+                $pdf->SetXY(50, 200);
+                $pdf->Write(0, 'Bukittinggi, ' . $tanggalSekarang);
+            }
+            
+            // Generate nama file
+            $fileName = 'sertifikat_' . str_replace(' ', '_', strtolower($biodata->nama_lengkap)) . '_' . date('Y-m-d') . '.pdf';
+            $filePath = 'sertifikat/' . $fileName;
+            
+            // Buat direktori jika belum ada
+            Storage::disk('public')->makeDirectory('sertifikat');
+            
+            // Simpan PDF
+            $fullPath = storage_path('app/public/' . $filePath);
+            \Log::info("SertifikatService: Saving PDF to: " . $fullPath);
+            
+            $pdf->Output('F', $fullPath);
+            
+            \Log::info("SertifikatService: PDF saved successfully using template");
+            
+            // Return data untuk disimpan ke database
+            return [
+                'file_path' => $filePath,
+                'nomor_sertifikat' => $nomorSertifikat
+            ];
+            
+        } catch (\Exception $e) {
+            \Log::error("SertifikatService: PDF template generation failed: " . $e->getMessage());
+            \Log::error("SertifikatService: Falling back to HTML template");
+            // Fallback ke HTML jika PDF template gagal
+            return $this->generateSertifikatFromHtml($userId);
+        }
     }
     
     public function generateSertifikatFromHtml($userId)
     {
+        \Log::info("SertifikatService: generateSertifikatFromHtml started");
+        
         $user = User::find($userId);
         $biodata = Biodata::where('user_id', $userId)->first();
         
@@ -124,44 +151,65 @@ class SertifikatService
             throw new \Exception('Data user atau biodata tidak ditemukan');
         }
         
-        // Format tanggal
-        $tanggalMulai = \Carbon\Carbon::parse($biodata->tanggal_mulai)->translatedFormat('d F Y');
-        $tanggalSelesai = \Carbon\Carbon::parse($biodata->tanggal_selesai)->translatedFormat('d F Y');
+        \Log::info("SertifikatService: Generating certificate number");
         
         // Generate nomor sertifikat
         $nomorSertifikat = $this->generateNomorSertifikat();
         
+        \Log::info("SertifikatService: Certificate number generated: " . $nomorSertifikat);
+        
+        // Format tanggal
+        $tanggalMulai = \Carbon\Carbon::parse($biodata->tanggal_mulai)->translatedFormat('d F Y');
+        $tanggalSelesai = \Carbon\Carbon::parse($biodata->tanggal_selesai)->translatedFormat('d F Y');
+        $tanggalSekarang = \Carbon\Carbon::now()->translatedFormat('d F Y');
+        
         // Data untuk template
         $data = [
-            'nama' => strtoupper($biodata->nama_lengkap),
+            'nama' => $biodata->nama_lengkap,
+            'nomor_sertifikat' => $nomorSertifikat,
             'tanggal_mulai' => $tanggalMulai,
             'tanggal_selesai' => $tanggalSelesai,
-            'nomor_sertifikat' => $nomorSertifikat,
-            // 'asal_sekolah' => $biodata->asal_sekolah,
-            // 'jurusan' => $biodata->jurusan,
-            'tanggal_sekarang' => \Carbon\Carbon::now()->translatedFormat('d F Y')
+            'tanggal_sekarang' => $tanggalSekarang
         ];
         
-        // Generate PDF dari HTML
-        $pdf = Pdf::loadView('templates.sertifikat', $data);
-        $pdf->setPaper('A4', 'landscape');
+        \Log::info("SertifikatService: Template data prepared", $data);
         
-        // Generate nama file
-        $fileName = 'sertifikat_' . str_replace(' ', '_', strtolower($user->name)) . '_' . date('Y-m-d') . '.pdf';
-        $filePath = 'sertifikat/' . $fileName;
-        
-        // Buat direktori jika belum ada
-        Storage::disk('public')->makeDirectory('sertifikat');
-        
-        // Simpan PDF
-        $fullPath = storage_path('app/public/' . $filePath);
-        $pdf->save($fullPath);
-        
-        // Return data untuk disimpan ke database
-        return [
-            'file_path' => $filePath,
-            'nomor_sertifikat' => $nomorSertifikat
-        ];
+        try {
+            // Generate PDF dari HTML
+            \Log::info("SertifikatService: Loading PDF view");
+            $pdf = Pdf::loadView('templates.sertifikat', $data);
+            $pdf->setPaper('A4', 'landscape');
+            
+            \Log::info("SertifikatService: PDF view loaded successfully");
+            
+            // Generate nama file
+            $fileName = 'sertifikat_' . str_replace(' ', '_', strtolower($biodata->nama_lengkap)) . '_' . date('Y-m-d') . '.pdf';
+            $filePath = 'sertifikat/' . $fileName;
+            
+            \Log::info("SertifikatService: File path: " . $filePath);
+            
+            // Buat direktori jika belum ada
+            Storage::disk('public')->makeDirectory('sertifikat');
+            
+            // Simpan PDF
+            $fullPath = storage_path('app/public/' . $filePath);
+            \Log::info("SertifikatService: Saving PDF to: " . $fullPath);
+            
+            $pdf->save($fullPath);
+            
+            \Log::info("SertifikatService: PDF saved successfully");
+            
+            // Return data untuk disimpan ke database
+            return [
+                'file_path' => $filePath,
+                'nomor_sertifikat' => $nomorSertifikat
+            ];
+            
+        } catch (\Exception $e) {
+            \Log::error("SertifikatService: PDF generation failed: " . $e->getMessage());
+            \Log::error("SertifikatService: Stack trace: " . $e->getTraceAsString());
+            throw $e;
+        }
     }
     
     public function generateSertifikatAlternative($userId)

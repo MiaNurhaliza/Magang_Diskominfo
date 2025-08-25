@@ -101,7 +101,7 @@
                                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 font-medium">
                                     <a href="{{ route('pembimbing.absensi') }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Absensi</a>
                                     <a href="{{ route('pembimbing.logbook') }}" class="text-green-600 hover:text-green-900 mr-3">Logbook</a>
-                                    <a href="{{ route('pembimbing.laporan') }}" class="text-blue-600 hover:text-blue-900">Laporan</a>
+                                    <a href="{{ route('pembimbing.laporan-akhir') }}" class="text-blue-600 hover:text-blue-900">Laporan</a>
                                 </td>
                             </tr>
                             @empty

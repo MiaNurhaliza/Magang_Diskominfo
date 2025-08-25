@@ -53,7 +53,7 @@
             <input type="text" name="nama_lengkap" class="form-control" value="{{ $peserta->nama_lengkap }}">
         </div>
 
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label>Sekolah/Kampus</label>
             <input type="text" name="asal_sekolah" class="form-control" value="{{ $peserta->asal_sekolah }}">
         </div>
@@ -61,7 +61,7 @@
         <div class="mb-3">
             <label>Jurusan</label>
             <input type="text" name="jurusan" class="form-control" value="{{ $peserta->jurusan }}">
-        </div>
+        </div> --}}
 
         <div class="mb-3">
             <label>Tanggal Mulai</label>
@@ -73,8 +73,26 @@
             <input type="date" name="tanggal_selesai" class="form-control" value="{{ $peserta->tanggal_selesai }}">
         </div>
 
+        <div class="mb-3">
+            <label>Password Baru (Opsional)</label>
+            <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah password">
+            <small class="form-text text-muted">Minimal 8 karakter. Kosongkan jika tidak ingin mengubah password.</small>
+        </div>
+
+        <div class="mb-3">
+            <label>Konfirmasi Password Baru</label>
+            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru">
+        </div>
+
         <button type="submit" class="btn btn-primary">Simpan</button>
         <a href="{{ route('admin.peserta-aktif') }}" class="btn btn-secondary">Kembali</a>
     </form> 
 </div>
+
+@if(session('success'))
+<script>
+    alert('{{ session('success') }}');
+</script>
+@endif
+
 @endsection

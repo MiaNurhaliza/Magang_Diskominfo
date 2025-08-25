@@ -31,7 +31,7 @@ public function logbooks()
 
     public function status()
     {
-        return $this->hasOne(Status::class);
+        return $this->hasOne(Status::class, 'user_id', 'user_id');
     }
     public function laporan_akhir()
     {

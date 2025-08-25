@@ -7,8 +7,6 @@ use App\Models\Pembimbing;
 use App\Models\Logbook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogbookController extends Controller
 {
@@ -35,17 +33,21 @@ class LogbookController extends Controller
     {
         $pembimbing = $this->pembimbing;
         $mahasiswas = $pembimbing->mahasiswas;
-        $mahasiswaIds = $mahasiswas->pluck('id');
+        $mahasiswaUserIds = $mahasiswas->pluck('user_id');
 
-        $query = Logbook::whereIn('biodata_id', $mahasiswaIds)
-            ->with('biodata');
+        $query = Logbook::whereIn('user_id', $mahasiswaUserIds)
+            ->with('user', 'biodata');
 
         // Filter by mahasiswa
         if ($request->mahasiswa_id) {
-            $query->where('biodata_id', $request->mahasiswa_id);
+            // Find the user_id for the selected mahasiswa
+            $selectedMahasiswa = $mahasiswas->find($request->mahasiswa_id);
+            if ($selectedMahasiswa) {
+                $query->where('user_id', $selectedMahasiswa->user_id);
+            }
         }
 
-        // Filter by status
+        // Filter by status (if status column exists)
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -65,12 +67,12 @@ class LogbookController extends Controller
 
         $logbooks = $query->orderBy('tanggal', 'desc')->paginate(15);
 
-        // Summary statistics
+        // Summary statistics - simplified since status column may not exist
         $summary = [
-            'total' => Logbook::whereIn('biodata_id', $mahasiswaIds)->count(),
-            'pending' => Logbook::whereIn('biodata_id', $mahasiswaIds)->where('status', 'pending')->count(),
-            'disetujui' => Logbook::whereIn('biodata_id', $mahasiswaIds)->where('status', 'disetujui')->count(),
-            'ditolak' => Logbook::whereIn('biodata_id', $mahasiswaIds)->where('status', 'ditolak')->count(),
+            'total' => Logbook::whereIn('user_id', $mahasiswaUserIds)->count(),
+            'pending' => 0,
+            'disetujui' => 0,
+            'ditolak' => 0,
         ];
 
         return view('pembimbing.logbook', compact(
@@ -86,7 +88,7 @@ class LogbookController extends Controller
     public function review(Request $request, Logbook $logbook)
     {
         // Check if logbook belongs to pembimbing's mahasiswa
-        if (!$this->pembimbing->mahasiswas()->where('biodata_id', $logbook->biodata_id)->exists()) {
+        if (!$this->pembimbing->mahasiswas()->where('user_id', $logbook->user_id)->exists()) {
             abort(403, 'Unauthorized access');
         }
 
@@ -112,63 +114,6 @@ class LogbookController extends Controller
      */
     private function export($type, $data)
     {
-        $filename = 'logbook_mahasiswa_' . date('Y-m-d_H-i-s');
-
-        if ($type === 'excel') {
-            return Excel::download(new LogbookExport($data), $filename . '.xlsx');
-        } elseif ($type === 'pdf') {
-            $pdf = Pdf::loadView('pembimbing.exports.logbook-pdf', compact('data'));
-            return $pdf->download($filename . '.pdf');
-        }
-
-        return redirect()->back()->with('error', 'Format export tidak valid.');
-    }
-}
-
-/**
- * Export class for Excel
- */
-class LogbookExport implements \Maatwebsite\Excel\Concerns\FromCollection,
-                              \Maatwebsite\Excel\Concerns\WithHeadings,
-                              \Maatwebsite\Excel\Concerns\WithMapping
-{
-    protected $data;
-
-    public function __construct($data)
-    {
-        $this->data = $data;
-    }
-
-    public function collection()
-    {
-        return $this->data;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Nama Mahasiswa',
-            'NIM',
-            'Tanggal',
-            'Kegiatan',
-            'Jam Mulai',
-            'Jam Selesai',
-            'Status',
-            'Komentar Pembimbing'
-        ];
-    }
-
-    public function map($logbook): array
-    {
-        return [
-            $logbook->biodata->nama,
-            $logbook->biodata->nim,
-            $logbook->tanggal->format('d/m/Y'),
-            $logbook->kegiatan,
-            $logbook->jam_mulai ? $logbook->jam_mulai->format('H:i') : '-',
-            $logbook->jam_selesai ? $logbook->jam_selesai->format('H:i') : '-',
-            ucfirst($logbook->status),
-            $logbook->komentar_pembimbing ?? '-'
-        ];
+        return redirect()->back()->with('error', 'Fitur export sementara dinonaktifkan.');
     }
 }

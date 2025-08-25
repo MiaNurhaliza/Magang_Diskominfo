@@ -33,7 +33,9 @@
                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ $peserta->id }}">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <a href="{{route('admin.peserta-aktif.edit', $peserta->id)}}" class="btn btn-sm btn-success"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#editModal{{ $peserta->id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                                 <form method="POST" action="#" class="d-inline">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">
@@ -99,6 +101,54 @@
     </div>
   </div>
 </div>
+
+{{-- Modal Edit --}}
+<!-- Modal Edit Peserta -->
+<div class="modal fade" id="editModal{{ $peserta->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">EDIT DATA PESERTA MAGANG</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('admin.peserta-aktif.update', $peserta->id) }}" method="POST">
+        @csrf
+        @method('PATCH')
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Tanggal Mulai</label>
+                <input type="date" name="tanggal_mulai" class="form-control" value="{{ $peserta->tanggal_mulai }}" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Tanggal Selesai</label>
+                <input type="date" name="tanggal_selesai" class="form-control" value="{{ $peserta->tanggal_selesai }}" required>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Password Baru (Opsional)</label>
+            <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah password">
+            <small class="form-text text-muted">Minimal 8 karakter. Kosongkan jika tidak ingin mengubah password.</small>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Konfirmasi Password Baru</label>
+            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password baru">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @empty
 <tr>
                             <td colspan="7" class="text-center text-muted">Belum ada peserta aktif.</td>
@@ -115,4 +165,12 @@
         </div>
     </div>
 </div>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        alert('{{ session('success') }}');
+    });
+</script>
+@endif
+
 @endsection

@@ -106,15 +106,22 @@
                     <label class="col-md-4 fw-semibold">Kartu tanda Mahasiswa/Pelajar</label>
                     <div class="col-md-6 border p-3 rounded border-primary text-center">
                       <div class="mb-2">
-            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
-        </div>
-                        <p class="mb-2 text-muted">Upload Kartu</p>
-                        <input type="file" name="kartu_tanda_mahasiswa" class="form-control mb-2 @error('kartu_tanda_mahasiswa') is-invalid @enderror">
-                        @error('kartu_tanda_mahasiswa')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <!-- <button class="btn btn-primary btn-sm" type="button">Upload Kartu</button> -->
-                        <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+                        @if(!empty($dokumen?->kartu_tanda_mahasiswa))
+                            <i class="bi bi-file-earmark-check-fill text-secondary" style="font-size: 40px;"></i>
+                            <p class="fw-semibold text-muted mb-1">Kartu_Tanda_Mahasiswa.pdf</p>
+                            <a href="{{ asset('storage/' . $dokumen->kartu_tanda_mahasiswa) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Lihat Kartu
+                            </a>
+                        @else
+                            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
+                            <p class="mb-2 text-muted">Upload Kartu</p>
+                            <input type="file" name="kartu_tanda_mahasiswa" class="form-control mb-2 @error('kartu_tanda_mahasiswa') is-invalid @enderror">
+                            @error('kartu_tanda_mahasiswa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+                        @endif
+                        </div>
                     </div>
                 </div>
 
@@ -123,32 +130,52 @@
                     <label class="col-md-4 fw-semibold">CV</label>
                     <div class="col-md-6 border p-3 rounded border-primary text-center">
                         <div class="mb-2">
-            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
-        </div>
-                        <p class="mb-2 text-muted">Upload CV</p>
-                        <input type="file" name="cv" class="form-control mb-2 @error('cv') is-invalid @enderror">
-                        @error('cv')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <!-- <button class="btn btn-primary btn-sm" type="button">Upload CV</button> -->
-                        <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+                        @if(!empty($dokumen?->cv))
+                            <i class="bi bi-file-earmark-check-fill text-secondary" style="font-size: 40px;"></i>
+                            <p class="fw-semibold text-muted mb-1">CV.pdf</p>
+                            <a href="{{ asset('storage/' . $dokumen->cv) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Lihat CV
+                            </a>
+                        @else
+                            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
+                            <p class="mb-2 text-muted">Upload CV</p>
+                            <input type="file" name="cv" class="form-control mb-2 @error('cv') is-invalid @enderror">
+                            @error('cv')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+                        @endif
+                        </div>
                     </div>
                 </div>
+
+
+
+                
 
                 {{-- Sertifikat Kompetensi --}}
                 <div class="row mb- align-items-center">
                     <label class="col-md-4 fw-semibold">Sertifikat Kompetensi</label>
                     <div class="col-md-6 border p-3 rounded border-primary text-center">
                        <div class="mb-2">
-            <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
-        </div>
-                        <p class="mb-2 text-muted">Upload Sertifikat</p>
-                        <input type="file" name="sertifikat" class="form-control mb-2 @error('sertifikat') is-invalid @enderror">
-                        @error('sertifikat')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <!-- <button class="btn btn-primary btn-sm" type="button">Upload Sertifikat</button> -->
-                        <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+        @if (!empty($dokumen?->sertifikat))
+            <i class="bi bi-file-earmark-check-fill text-secondary" style="font-size: 40px;"></i>
+            <p class="fw-semibold text-muted mb-1">Sertifikat.pdf</p>
+            <a href="{{ asset('storage/' . $dokumen->sertifikat     ) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                Lihat Sertifikat        
+            </a>
+        @else
+        <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 40px;"></i>
+            <p class="mb-2 text-muted">Upload Sertifikat</p>        
+            <input type="file" name="sertifikat" class="form-control mb-2 @error('sertifikat') is-invalid @enderror">
+            @error('sertifikat')    
+                <div class="invalid-feedback">{{ $message }}</div>      
+            @enderror
+            <p class="text-danger small mt-2">⚠ Ukuran maksimal 5 MB. Format yang diperbolehkan: PDF</p>
+        </div>  
+            
+        @endif
+                </div>
                     </div>
                 </div>
 

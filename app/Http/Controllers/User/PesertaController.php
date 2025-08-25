@@ -10,6 +10,16 @@ class PesertaController extends Controller
 {
     public function index()
     {
+        // Jika user adalah pembimbing, redirect ke dashboard pembimbing
+        if (Auth::user()->role === 'pembimbing') {
+            return redirect()->route('pembimbing.dashboard');
+        }
+
+        // Jika user adalah admin, redirect ke dashboard admin
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
         // Ambil status pendaftaran dari biodata user
         $biodata = Biodata::where('user_id', Auth::id())->first();
 

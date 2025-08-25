@@ -24,32 +24,58 @@ class SertifikatBackendController extends Controller
                 $query->where('status', 'Diterima');
             })
             ->with(['biodata', 'sertifikat', 'laporanAkhir'])
+            ->orderByDesc('created_at')
             ->paginate(10);
         return view('backend.sertifikat.index', compact('users'));
     }
 
     public function generate($userId) {
+        // Simple test to see if method is called
+        \Log::info("=== SERTIFIKAT GENERATE START ===");
+        \Log::info("User ID: " . $userId);
+        
         try {
             // Cek apakah biodata sudah lengkap dan status diterima
             $biodata = Biodata::where('user_id', $userId)->first();
             
             if (!$biodata) {
+                \Log::error("Biodata not found for user ID: " . $userId);
                 return back()->with('error', 'Biodata peserta tidak ditemukan.');
             }
+            
+            \Log::info("Biodata found. Status: " . $biodata->status);
             
             if ($biodata->status !== 'Diterima') {
                 return back()->with('error', 'Sertifikat hanya dapat dibuat untuk peserta dengan status Diterima.');
             }
             
+            // Check if laporan akhir is approved
+            $laporanAkhir = \App\Models\LaporanAkhir::where('user_id', $userId)->first();
+            
+            if (!$laporanAkhir || $laporanAkhir->status !== 'approved') {
+                return back()->with('error', 'Sertifikat hanya dapat dibuat setelah laporan akhir disetujui pembimbing.');
+            }
+            
             // Cek apakah sertifikat sudah pernah dibuat
             $existingSertifikat = Sertifikat::where('user_id', $userId)->first();
             
-            if ($existingSertifikat) {
+            if ($existingSertifikat && $existingSertifikat->file_sertifikat) {
+                \Log::info("Certificate already exists for user ID: " . $userId);
                 return back()->with('info', 'Sertifikat untuk peserta ini sudah pernah dibuat.');
             }
             
+            // Delete existing incomplete certificate record if exists
+            if ($existingSertifikat && !$existingSertifikat->file_sertifikat) {
+                $existingSertifikat->delete();
+                \Log::info("Deleted incomplete certificate record for user ID: " . $userId);
+            }
+            
+            \Log::info("Starting certificate generation...");
+            
             // Generate sertifikat baru
             $result = $this->sertifikatService->generateSertifikat($userId);
+            
+            \Log::info("Certificate generated successfully. File: " . $result['file_path']);
             
             // Simpan record sertifikat ke database
             Sertifikat::create([
@@ -60,9 +86,13 @@ class SertifikatBackendController extends Controller
                 'file_sertifikat' => $result['file_path']
             ]);
             
+            \Log::info("Certificate record saved to database");
+            
             return back()->with('success', 'Sertifikat berhasil dibuat dan siap diunduh.');
             
         } catch (\Exception $e) {
+            \Log::error("Certificate generation failed: " . $e->getMessage());
+            \Log::error("Stack trace: " . $e->getTraceAsString());
             return back()->with('error', 'Gagal membuat sertifikat: ' . $e->getMessage());
         }
     }

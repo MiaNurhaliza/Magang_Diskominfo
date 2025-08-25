@@ -14,12 +14,7 @@ class PembimbingController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!auth()->user()->isAdmin()) {
-                abort(403, 'Unauthorized');
-            }
-            return $next($request);
-        });
+        $this->middleware('role:admin');
     }
 
     /**

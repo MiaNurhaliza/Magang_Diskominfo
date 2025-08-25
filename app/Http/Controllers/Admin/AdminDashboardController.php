@@ -8,7 +8,8 @@ use App\Models\Biodata;
 use App\Models\Status;
 use App\Models\Absensi;
 use App\Models\Logbook;
-use App\Models\Laporan_Akhir;
+use App\Models\LaporanAkhir;
+use App\Models\Sertifikat;
 
 class AdminDashboardController extends Controller
 {
@@ -16,31 +17,35 @@ class AdminDashboardController extends Controller
     {
         // Ringkasan
         $totalPendaftar = Biodata::count();
-        $diterima = Status::where('status', 'diterima')->count();
-        $ditolak = Status::where('status', 'ditolak')->count();
-        $pesertaAktif = Status::where('status', 'diterima')->count(); // anggap diterima = aktif
-        //$laporanAkhir = LaporanAkhir::whereNotNull('laporan_akhir')->count();
-        // $laporanAkhir = Biodata::whereNotNull('file_laporan')->count();
-        // $sertifikat = Biodata::whereNotNull('sertifikat')->count();
+        $diterima = Biodata::where('status', 'diterima')->count();
+        $ditolak = Biodata::where('status', 'ditolak')->count();
+        $pesertaAktif = Biodata::where('status', 'diterima')->count(); // anggap diterima = aktif
+        $laporanAkhir = LaporanAkhir::whereNotNull('file_laporan')->count();
+        $sertifikat = Sertifikat::count();
 
          $today = now()->toDateString();
 
-        // Aktivitas hari ini
-        $aktivitasHariIni = Biodata::with([
-    'absensi' => function ($query) use ($today) {
-        $query->where('tanggal', $today);
-    },
-    'logbook' => function ($query) use ($today) {
-        $query->where('tanggal', $today);
-    }
-])->get();
+        // Aktivitas hari ini - hanya peserta yang diterima
+        $aktivitasHariIni = Biodata::whereHas('status', function($query) {
+            $query->where('status', 'diterima');
+        })
+        ->with([
+            'user',
+            'absensi' => function ($query) use ($today) {
+                $query->where('tanggal', $today);
+            },
+            'logbook' => function ($query) use ($today) {
+                $query->where('tanggal', $today);
+            }
+        ])
+        ->paginate(5);
         return view('backend.dashboard', compact(
             'totalPendaftar',
             'diterima',
             'ditolak',
             'pesertaAktif',
-            // 'laporanAkhir',
-            // 'sertifikat',
+            'laporanAkhir',
+            'sertifikat',
             'aktivitasHariIni'
         ));
     }

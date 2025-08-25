@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Pembimbing;
 use App\Http\Controllers\Controller;
 use App\Models\Pembimbing;
 use App\Models\LaporanAkhir;
+use App\Models\Sertifikat;
+use App\Models\Biodata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanAkhirController extends Controller
 {
@@ -35,17 +35,21 @@ class LaporanAkhirController extends Controller
     {
         $pembimbing = $this->pembimbing;
         $mahasiswas = $pembimbing->mahasiswas;
-        $mahasiswaIds = $mahasiswas->pluck('id');
+        $mahasiswaUserIds = $mahasiswas->pluck('user_id');
 
-        $query = LaporanAkhir::whereIn('biodata_id', $mahasiswaIds)
-            ->with('biodata');
+        $query = LaporanAkhir::whereIn('user_id', $mahasiswaUserIds)
+            ->with('user');
 
         // Filter by mahasiswa
         if ($request->mahasiswa_id) {
-            $query->where('biodata_id', $request->mahasiswa_id);
+            // Find the user_id for the selected mahasiswa
+            $selectedMahasiswa = $mahasiswas->find($request->mahasiswa_id);
+            if ($selectedMahasiswa) {
+                $query->where('user_id', $selectedMahasiswa->user_id);
+            }
         }
 
-        // Filter by status
+        // Filter by status (if status column exists)
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -64,46 +68,135 @@ class LaporanAkhirController extends Controller
 
         // Summary statistics
         $summary = [
-            'total' => LaporanAkhir::whereIn('biodata_id', $mahasiswaIds)->count(),
-            'menunggu_review' => LaporanAkhir::whereIn('biodata_id', $mahasiswaIds)->where('status', 'menunggu_review')->count(),
-            'disetujui' => LaporanAkhir::whereIn('biodata_id', $mahasiswaIds)->where('status', 'disetujui')->count(),
-            'ditolak' => LaporanAkhir::whereIn('biodata_id', $mahasiswaIds)->where('status', 'ditolak')->count(),
+            'total' => LaporanAkhir::whereIn('user_id', $mahasiswaUserIds)->count(),
+            'menunggu_review' => LaporanAkhir::whereIn('user_id', $mahasiswaUserIds)->where('status', 'pending')->count(),
+            'disetujui' => LaporanAkhir::whereIn('user_id', $mahasiswaUserIds)->where('status', 'approved')->count(),
+            'ditolak' => LaporanAkhir::whereIn('user_id', $mahasiswaUserIds)->where('status', 'revision')->count(),
         ];
 
         return view('pembimbing.laporan-akhir', compact(
             'laporans',
             'mahasiswas',
             'summary'
-        ));
+        ))->with('laporanAkhirs', $laporans);
     }
 
     /**
-     * Review laporan akhir
+     * Review laporan akhir (legacy method for compatibility)
      */
     public function review(Request $request, LaporanAkhir $laporan)
     {
+        // Redirect to appropriate action based on status
+        if ($request->status === 'approved') {
+            return $this->approve($laporan);
+        } elseif ($request->status === 'revision') {
+            return $this->revise($request, $laporan);
+        }
+        
+        return redirect()->back()->with('error', 'Status tidak valid.');
+    }
+
+    /**
+     * Approve laporan akhir
+     */
+    public function approve(LaporanAkhir $laporan)
+    {
         // Check if laporan belongs to pembimbing's mahasiswa
-        if (!$this->pembimbing->mahasiswas()->where('biodata_id', $laporan->biodata_id)->exists()) {
+        if (!$this->pembimbing->mahasiswas()->where('user_id', $laporan->user_id)->exists()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $laporan->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+            'revision_note' => null
+        ]);
+
+        // Auto-create sertifikat when laporan is approved
+        $this->createSertifikat($laporan);
+
+        return redirect()->back()
+            ->with('success', 'Laporan akhir berhasil disetujui. Sertifikat otomatis tersedia di admin.');
+    }
+
+    /**
+     * Request revision for laporan akhir
+     */
+    public function revise(Request $request, LaporanAkhir $laporan)
+    {
+        \Log::info("Revise method called for laporan ID: " . $laporan->id);
+        
+        // Check if laporan belongs to pembimbing's mahasiswa
+        if (!$this->pembimbing->mahasiswas()->where('user_id', $laporan->user_id)->exists()) {
+            \Log::error("Unauthorized access for laporan ID: " . $laporan->id);
             abort(403, 'Unauthorized access');
         }
 
         $request->validate([
-            'status' => 'required|in:disetujui,ditolak',
-            'nilai' => 'nullable|numeric|min:0|max:100',
-            'komentar_pembimbing' => 'nullable|string|max:1000'
+            'revision_note' => 'required|string|max:1000'
         ]);
+
+        \Log::info("Updating laporan status to revision with note: " . $request->revision_note);
 
         $laporan->update([
-            'status' => $request->status,
-            'nilai' => $request->nilai,
-            'komentar_pembimbing' => $request->komentar_pembimbing,
-            'reviewed_at' => now(),
-            'reviewed_by' => Auth::id()
+            'status' => 'revision',
+            'revision_note' => $request->revision_note,
+            'approved_at' => null,
+            'approved_by' => null
         ]);
 
-        $statusText = $request->status === 'disetujui' ? 'disetujui' : 'ditolak';
+        \Log::info("Laporan updated successfully");
+
         return redirect()->back()
-            ->with('success', "Laporan akhir berhasil {$statusText}.");
+            ->with('success', 'Laporan akhir dikembalikan untuk revisi.');
+    }
+
+    /**
+     * Delete laporan akhir
+     */
+    public function destroy(LaporanAkhir $laporan)
+    {
+        // Check if laporan belongs to pembimbing's mahasiswa
+        if (!$this->pembimbing->mahasiswas()->where('user_id', $laporan->user_id)->exists()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $laporan->delete();
+
+        return redirect()->back()
+            ->with('success', 'Laporan akhir berhasil dihapus.');
+    }
+
+    /**
+     * Create sertifikat when laporan is approved
+     */
+    private function createSertifikat(LaporanAkhir $laporan)
+    {
+        // Check if sertifikat already exists
+        $existingSertifikat = Sertifikat::where('user_id', $laporan->user_id)->first();
+        
+        if (!$existingSertifikat) {
+            // Get biodata for dates
+            $biodata = Biodata::where('user_id', $laporan->user_id)->first();
+            
+            // Generate nomor sertifikat
+            $year = date('Y');
+            $month = date('m');
+            $lastSertifikat = Sertifikat::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+            $nomorUrut = str_pad($lastSertifikat + 1, 3, '0', STR_PAD_LEFT);
+            $nomorSertifikat = "SERT/{$year}/{$month}/{$nomorUrut}";
+            
+            Sertifikat::create([
+                'user_id' => $laporan->user_id,
+                'nomor_sertifikat' => $nomorSertifikat,
+                'tanggal_mulai' => $biodata->tanggal_mulai ?? now()->subMonths(3),
+                'tanggal_selesai' => $biodata->tanggal_selesai ?? now(),
+                'file_sertifikat' => null, // Will be generated by admin
+            ]);
+        }
     }
 
     /**
@@ -111,61 +204,6 @@ class LaporanAkhirController extends Controller
      */
     private function export($type, $data)
     {
-        $filename = 'laporan_akhir_mahasiswa_' . date('Y-m-d_H-i-s');
-
-        if ($type === 'excel') {
-            return Excel::download(new LaporanAkhirExport($data), $filename . '.xlsx');
-        } elseif ($type === 'pdf') {
-            $pdf = Pdf::loadView('pembimbing.exports.laporan-akhir-pdf', compact('data'));
-            return $pdf->download($filename . '.pdf');
-        }
-
-        return redirect()->back()->with('error', 'Format export tidak valid.');
-    }
-}
-
-/**
- * Export class for Excel
- */
-class LaporanAkhirExport implements \Maatwebsite\Excel\Concerns\FromCollection,
-                                   \Maatwebsite\Excel\Concerns\WithHeadings,
-                                   \Maatwebsite\Excel\Concerns\WithMapping
-{
-    protected $data;
-
-    public function __construct($data)
-    {
-        $this->data = $data;
-    }
-
-    public function collection()
-    {
-        return $this->data;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Nama Mahasiswa',
-            'NIM',
-            'Judul Laporan',
-            'Tanggal Submit',
-            'Status',
-            'Nilai',
-            'Komentar Pembimbing'
-        ];
-    }
-
-    public function map($laporan): array
-    {
-        return [
-            $laporan->biodata->nama,
-            $laporan->biodata->nim,
-            $laporan->judul,
-            $laporan->created_at->format('d/m/Y H:i'),
-            ucfirst(str_replace('_', ' ', $laporan->status)),
-            $laporan->nilai ?? '-',
-            $laporan->komentar_pembimbing ?? '-'
-        ];
+        return redirect()->back()->with('error', 'Fitur export sementara dinonaktifkan.');
     }
 }

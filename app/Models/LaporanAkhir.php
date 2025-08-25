@@ -17,6 +17,10 @@ class LaporanAkhir extends Model
         'pembimbing_industri',
         'file_laporan',
         'file_nilai_magang',
+        'status',
+        'revision_note',
+        'approved_at',
+        'approved_by',
     ];
     public function user()
     {
@@ -27,4 +31,13 @@ class LaporanAkhir extends Model
     {
         return $this->belongsTo(Biodata::class, 'user_id', 'user_id');
     }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
 }

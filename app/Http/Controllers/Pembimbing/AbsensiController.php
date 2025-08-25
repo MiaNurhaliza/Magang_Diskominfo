@@ -74,6 +74,25 @@ class AbsensiController extends Controller
     }
 
     /**
+     * Delete absensi record
+     */
+    public function destroy(Absensi $absensi)
+    {
+        $pembimbing = $this->pembimbing;
+        $mahasiswaIds = $pembimbing->mahasiswas->pluck('id');
+
+        // Check if absensi belongs to pembimbing's mahasiswa
+        if (!$mahasiswaIds->contains($absensi->biodata_id)) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $absensi->delete();
+
+        return redirect()->back()
+            ->with('success', 'Data absensi berhasil dihapus.');
+    }
+
+    /**
      * Export absensi data
      */
     private function export($type, $data)

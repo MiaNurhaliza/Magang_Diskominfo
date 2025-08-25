@@ -28,22 +28,36 @@ class LaporanAkhirController extends Controller
         // Cek apakah user sudah pernah upload laporan
         $existingLaporan = LaporanAkhir::where('user_id', Auth::id())->first();
         
-        if ($existingLaporan) {
-            return back()->with('error', 'Anda sudah pernah mengupload laporan akhir. Laporan hanya dapat diupload sekali.');
+        if ($existingLaporan && $existingLaporan->status !== 'revision') {
+            return back()->with('error', 'Anda sudah pernah mengupload laporan akhir. Laporan hanya dapat diupload ulang jika diminta revisi.');
         }
         
-        // Buat data baru
+        // Upload files
         $laporanPath = $request->file('file_laporan')->store('laporan-akhir', 'public');
         $nilaiPath = $request->file('file_nilai_magang')->store('nilai-magang', 'public');
         
-        LaporanAkhir::create([
-            'user_id' => Auth::id(),
-            'nama_lengkap' => Auth::user()->name,
-            'judul_laporan' => $request->judul_laporan,
-            'pembimbing_industri' => $request->pembimbing_industri,
-            'file_laporan' => $laporanPath,
-            'file_nilai_magang' => $nilaiPath,
-        ]);
+        if ($existingLaporan) {
+            // Update existing laporan (for revision)
+            $existingLaporan->update([
+                'judul_laporan' => $request->judul_laporan,
+                'pembimbing_industri' => $request->pembimbing_industri,
+                'file_laporan' => $laporanPath,
+                'file_nilai_magang' => $nilaiPath,
+                'status' => 'pending',
+                'revision_note' => null,
+            ]);
+        } else {
+            // Create new laporan
+            LaporanAkhir::create([
+                'user_id' => Auth::id(),
+                'nama_lengkap' => Auth::user()->name,
+                'judul_laporan' => $request->judul_laporan,
+                'pembimbing_industri' => $request->pembimbing_industri,
+                'file_laporan' => $laporanPath,
+                'file_nilai_magang' => $nilaiPath,
+                'status' => 'pending',
+            ]);
+        }
         
         return back()->with('success', 'Laporan akhir berhasil diunggah!');
     }

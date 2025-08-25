@@ -28,19 +28,6 @@ public function index()
 }
 
 
-    // public function status()
-    // {
-    //     // Ambil data pendaftaran user yang login
-    //     $status = Biodata::where('user_id', auth()->id())->first();
-
-    //     if (!$status) {
-    //         return redirect()->route('biodata.create')
-    //                          ->with('error', 'Silakan lengkapi biodata terlebih dahulu.');
-    //     }
-
-    //     return view('frontend.status_pendaftaran', compact('status'));
-    // }
-
     public function konfirmasiKetersediaan(Request $request, $id)
 {
     $request->validate([

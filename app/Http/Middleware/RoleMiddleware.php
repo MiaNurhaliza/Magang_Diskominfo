@@ -13,8 +13,19 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized');
+        $user = Auth::user();
+        
+        if ($user->role !== $role) {
+            // Redirect based on user's actual role instead of throwing 403
+            switch ($user->role) {
+                case 'admin':
+                    return redirect()->route('admin.dashboard')->with('error', 'Akses tidak diizinkan');
+                case 'pembimbing':
+                    return redirect()->route('pembimbing.dashboard')->with('error', 'Akses tidak diizinkan');
+                case 'user':
+                default:
+                    return redirect()->route('dashboard')->with('error', 'Akses tidak diizinkan');
+            }
         }
 
         return $next($request);

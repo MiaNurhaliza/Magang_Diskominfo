@@ -15,4 +15,9 @@ class Status extends Model
         'surat_balasan',
         // tambahkan kolom lain sesuai tabel kamu
     ];
+
+    public function biodata()
+    {
+        return $this->belongsTo(Biodata::class, 'user_id', 'user_id');
+    }
 }

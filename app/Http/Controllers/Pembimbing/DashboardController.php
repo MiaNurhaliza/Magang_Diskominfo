@@ -33,7 +33,35 @@ class DashboardController extends Controller
 
         $mahasiswas = $pembimbing->mahasiswas()->with(['user', 'absensi', 'logbook'])->get();
         
-        return view('pembimbing.dashboard', compact('mahasiswas', 'pembimbing'));
+        // Calculate statistics for dashboard
+        $totalMahasiswa = $mahasiswas->count();
+        
+        $totalAbsensi = 0;
+        $totalLogbook = 0;
+        $laporanSelesai = 0;
+        
+        foreach ($mahasiswas as $mahasiswa) {
+            // Count total attendance records
+            $totalAbsensi += Absensi::where('biodata_id', $mahasiswa->id)->count();
+            
+            // Count total logbook entries
+            $totalLogbook += Logbook::where('user_id', $mahasiswa->user_id)->count();
+            
+            // Count completed reports
+            $laporan = LaporanAkhir::where('user_id', $mahasiswa->user_id)->first();
+            if ($laporan && $laporan->laporan_akhir && $laporan->nilai) {
+                $laporanSelesai++;
+            }
+        }
+        
+        return view('pembimbing.dashboard', compact(
+            'mahasiswas', 
+            'pembimbing', 
+            'totalMahasiswa', 
+            'totalAbsensi', 
+            'totalLogbook', 
+            'laporanSelesai'
+        ));
     }
 
     public function absensi()

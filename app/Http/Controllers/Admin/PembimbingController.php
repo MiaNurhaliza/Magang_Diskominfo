@@ -18,6 +18,7 @@ class PembimbingController extends Controller
      */
     public function index(Request $request)
     {
+        
         $query = Pembimbing::with(['user', 'mahasiswas'])
             ->withCount('mahasiswas');
 
@@ -27,7 +28,7 @@ class PembimbingController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
-                  //->orWhere('departemen', 'like', "%{$search}%");
+                  
             });
         }
 

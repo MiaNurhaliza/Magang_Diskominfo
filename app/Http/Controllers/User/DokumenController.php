@@ -35,13 +35,47 @@ public function store(Request $request)
         return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
     }
 
-    // Validasi file
-    $request->validate([
-        'surat_permohonan' => 'required|mimes:pdf|max:5120',
-        'kartu_tanda_mahasiswa' => 'nullable|mimes:pdf|max:5120',
-        'cv' => 'nullable|mimes:pdf|max:5120',
-        'sertifikat' => 'nullable|mimes:pdf|max:5120',
+    // Check if dokumen already exists
+    $existingDokumen = \App\Models\Dokumen::where('user_id', $userId)->first();
+
+    $rules = [];
+    $messages = [
+        'surat_permohonan.required' => 'Surat permohonan magang wajib diupload.',
+        'surat_permohonan.mimes' => 'Surat permohonan harus berformat PDF.',
+        'surat_permohonan.max' => 'Ukuran surat permohonan maksimal 5MB.',
+        'kartu_tanda_mahasiswa.required' => 'Kartu tanda mahasiswa/pelajar wajib diupload.',
+        'kartu_tanda_mahasiswa.mimes' => 'Kartu tanda mahasiswa harus berformat PDF.',
+        'kartu_tanda_mahasiswa.max' => 'Ukuran kartu tanda mahasiswa maksimal 5MB.',
+        'cv.mimes' => 'CV harus berformat PDF.',
+        'cv.max' => 'Ukuran CV maksimal 5MB.',
+        'sertifikat.mimes' => 'Sertifikat harus berformat PDF.',
+        'sertifikat.max' => 'Ukuran sertifikat maksimal 5MB.',
+    ];
+
+    if (!$existingDokumen || !$existingDokumen->surat_permohonan) {
+        $rules['surat_permohonan'] = 'required|mimes:pdf|max:5120';
+    } else {
+        $rules['surat_permohonan'] = 'nullable|mimes:pdf|max:5120';
+    }
+    
+    // Kartu tanda mahasiswa tidak wajib
+    $rules['kartu_tanda_mahasiswa'] = 'nullable|mimes:pdf|max:5120';
+    
+    $rules['cv'] = 'nullable|mimes:pdf|max:5120';
+    $rules['sertifikat'] = 'nullable|mimes:pdf|max:5120';
+
+    // Debug: Log request data
+    \Log::info('Upload request data:', [
+        'has_surat_permohonan' => $request->hasFile('surat_permohonan'),
+        'has_kartu_tanda_mahasiswa' => $request->hasFile('kartu_tanda_mahasiswa'),
+        'has_cv' => $request->hasFile('cv'),
+        'has_sertifikat' => $request->hasFile('sertifikat'),
+        'files_count' => count($request->allFiles()),
+        'content_type' => $request->header('Content-Type')
     ]);
+
+    // Validasi file
+    $request->validate($rules, $messages);
 
     // Simpan file
     $data = [];

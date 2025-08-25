@@ -30,6 +30,7 @@
                                     <th>Nama Lengkap</th>
                                     <th>Tanggal Upload</th>
                                     <th>Judul Laporan</th>
+                                    <th>Status</th>
                                     <th>Laporan</th>
                                     <th>Nilai Magang</th>
                                     <th>Aksi</th>
@@ -40,8 +41,23 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $laporan->biodata->nama_lengkap ?? '-' }}</td>
-                                    <td>{{ $laporan->created_at->translatedFormat('d-m-Y') }}</td>
+                                    {{-- <td>{{ $laporan->created_at->translatedFormat('d-m-Y') }}</td> --}}
                                     <td>{{ $laporan->judul_laporan ?? '-' }}</td>
+                                    <td>
+                                        @switch($laporan->status)
+                                            @case('pending')
+                                                <span class="badge bg-warning">Menunggu Review</span>
+                                                @break
+                                            @case('approved')
+                                                <span class="badge bg-success">Disetujui</span>
+                                                @break
+                                            @case('revision')
+                                                <span class="badge bg-danger">Perlu Revisi</span>
+                                                @break
+                                            @default
+                                                <span class="badge bg-secondary">-</span>
+                                        @endswitch
+                                    </td>
                                     <td>
                                         @if($laporan->file_laporan)
                                         <a href="{{ asset('storage/' . $laporan->file_laporan) }}" target="_blank" class="btn btn-sm btn-outline-purple">
@@ -61,17 +77,49 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <form action="{{ route('pembimbing.laporan-akhir.destroy', $laporan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin hapus data ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            @if($laporan->status === 'pending')
+                                                <form action="{{ route('pembimbing.laporan-akhir.approve', $laporan->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to approve this report?')">
+                                                        <i class="bi bi-check-circle"></i> Setujui
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('pembimbing.laporan-akhir.revise', $laporan->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <input type="hidden" name="revision_note" value="Perlu perbaikan - silakan revisi laporan Anda">
+                                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Kirim laporan untuk revisi?')">
+                                                        <i class="bi bi-arrow-clockwise"></i> Revisi
+                                                    </button>
+                                                </form>
+                                            @elseif($laporan->status === 'revision')
+                                                <form action="{{ route('pembimbing.laporan-akhir.approve', $laporan->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to approve this report?')">
+                                                        <i class="bi bi-check-circle"></i> Setujui
+                                                    </button>
+                                                </form>
+                                                <span class="badge bg-info">Menunggu Revisi</span>
+                                            @elseif($laporan->status === 'approved')
+                                                <span class="badge bg-success">Sudah Disetujui</span>
+                                            @endif
+                                            
+                                            {{-- <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailModal{{ $laporan->id }}">
+                                                <i class="bi bi-eye"></i>
+                                            </button> --}}
+                                            
+                                            <form action="{{ route('pembimbing.laporan-akhir.destroy', $laporan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this report?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
 
-                                <!-- Detail Modal -->
+                                {{-- <!-- Detail Modal -->
                                 <div class="modal fade" id="detailModal{{ $laporan->id }}" tabindex="-1">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
@@ -176,59 +224,65 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
-                                <!-- Review Modal -->
-                                @if(in_array($laporan->status, ['submitted', 'reviewed']))
-                                <div class="modal fade" id="reviewModal{{ $laporan->id }}" tabindex="-1">
+                                
+                                <!-- Approve Modal -->
+                                <div class="modal fade" id="approveModal{{ $laporan->id }}" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Review Laporan Akhir</h5>
+                                                <h5 class="modal-title">Setujui Laporan Akhir</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form id="reviewForm{{ $laporan->id }}" onsubmit="submitReview(event, {{ $laporan->id }})">
+                                            <div class="modal-body">
+                                                <p>Apakah Anda yakin ingin menyetujui laporan akhir dari <strong>{{ $laporan->biodata->nama_lengkap ?? 'Mahasiswa' }}</strong>?</p>
+                                                <p class="text-muted">Setelah disetujui, sertifikat akan otomatis tersedia di admin.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <form action="{{ route('pembimbing.laporan-akhir.approve', $laporan->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success">Ya, Setujui</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Revise Modal -->
+                                <div class="modal fade" id="reviseModal{{ $laporan->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Minta Revisi Laporan</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{{ route('pembimbing.laporan-akhir.revise', $laporan->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label class="form-label fw-bold">Mahasiswa:</label>
-                                                        <p>{{ $laporan->biodata->nama ?? 'Nama tidak tersedia' }} ({{ $laporan->biodata->nim ?? 'NIM tidak tersedia' }})</p>
+                                                        <p>{{ $laporan->biodata->nama_lengkap ?? 'Mahasiswa' }}</p>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label fw-bold">Judul Laporan:</label>
-                                                        <p>{{ $laporan->judul }}</p>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="nilai{{ $laporan->id }}" class="form-label">Nilai (0-100):</label>
-                                                        <input type="number" class="form-control" id="nilai{{ $laporan->id }}" name="nilai" 
-                                                               min="0" max="100" value="{{ $laporan->nilai }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="komentar{{ $laporan->id }}" class="form-label">Komentar:</label>
-                                                        <textarea class="form-control" id="komentar{{ $laporan->id }}" name="komentar" rows="4" 
-                                                                  placeholder="Berikan komentar atau feedback...">{{ $laporan->komentar_pembimbing }}</textarea>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="status{{ $laporan->id }}" class="form-label">Status:</label>
-                                                        <select class="form-select" id="status{{ $laporan->id }}" name="status" required>
-                                                            <option value="reviewed" {{ $laporan->status == 'reviewed' ? 'selected' : '' }}>Direview</option>
-                                                            <option value="approved" {{ $laporan->status == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                                                            <option value="rejected" {{ $laporan->status == 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                                                        </select>
+                                                        <label for="revision_note{{ $laporan->id }}" class="form-label">Catatan Revisi <span class="text-danger">*</span></label>
+                                                        <textarea class="form-control" id="revision_note{{ $laporan->id }}" name="revision_note" rows="4" 
+                                                                  placeholder="Jelaskan bagian yang perlu direvisi..." required>{{ $laporan->revision_note }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary">Simpan Review</button>
+                                                    <button type="submit" class="btn btn-warning">Kirim Revisi</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                                @endif
+
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">Belum ada data laporan akhir.</td>
+                                    <td colspan="8" class="text-center">Belum ada data laporan akhir.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

@@ -171,6 +171,7 @@ class AbsensiController extends Controller
         ]);
 
         // Set status izin untuk semua sesi
+        $absensi->user_id = Auth::id();
         $absensi->pagi = $request->jenis_izin;
         $absensi->siang = $request->jenis_izin;
         $absensi->sore = $request->jenis_izin;
