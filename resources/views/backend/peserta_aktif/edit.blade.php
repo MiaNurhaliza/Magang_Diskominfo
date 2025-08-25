@@ -48,10 +48,10 @@
         @csrf
         @method('PATCH')
         
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label>Nama Lengkap</label>
             <input type="text" name="nama_lengkap" class="form-control" value="{{ $peserta->nama_lengkap }}">
-        </div>
+        </div> --}}
 
         {{-- <div class="mb-3">
             <label>Sekolah/Kampus</label>

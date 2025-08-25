@@ -119,13 +119,13 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-bold">Tanggal Mulai</label>
-                <input type="date" name="tanggal_mulai" class="form-control" value="{{ $peserta->tanggal_mulai }}" required>
+                <input type="date" name="tanggal_mulai" class="form-control" value="{{ $peserta->tanggal_mulai }}">
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-bold">Tanggal Selesai</label>
-                <input type="date" name="tanggal_selesai" class="form-control" value="{{ $peserta->tanggal_selesai }}" required>
+                <input type="date" name="tanggal_selesai" class="form-control" value="{{ $peserta->tanggal_selesai }}">
               </div>
             </div>
           </div>

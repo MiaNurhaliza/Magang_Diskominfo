@@ -39,17 +39,30 @@ class AdminPesertaAktifController extends Controller
         \Log::info('Password filled: ' . ($request->filled('password') ? 'Yes' : 'No'));
         
         // Validasi input
-        $request->validate([
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'password' => 'nullable|string|min:8|confirmed',
-        ]);
+        $validationRules = [
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+        ];
         
-        // Update data biodata
-        $peserta->update([
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-        ]);
+        // Tambahkan validasi password hanya jika password diisi
+        if ($request->filled('password')) {
+            $validationRules['password'] = 'required|string|min:8|confirmed';
+        }
+        
+        $request->validate($validationRules);
+        
+        // Update data biodata hanya jika field diisi
+        $updateData = [];
+        if ($request->filled('tanggal_mulai')) {
+            $updateData['tanggal_mulai'] = $request->tanggal_mulai;
+        }
+        if ($request->filled('tanggal_selesai')) {
+            $updateData['tanggal_selesai'] = $request->tanggal_selesai;
+        }
+        
+        if (!empty($updateData)) {
+            $peserta->update($updateData);
+        }
         
         // Update password jika diisi
         if ($request->filled('password')) {
