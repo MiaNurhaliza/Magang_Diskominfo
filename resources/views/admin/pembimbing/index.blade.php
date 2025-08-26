@@ -108,11 +108,14 @@
                                                     </div>
                                                     
                                                     <div class="mb-3">
-                                                        <label for="status{{ $pembimbing->id }}" class="form-label">Status <span class="text-danger">*</span></label>
-                                                        <select class="form-select" id="status{{ $pembimbing->id }}" name="status" required>
-                                                            <option value="aktif" {{ $pembimbing->status === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                                            <option value="nonaktif" {{ $pembimbing->status === 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
-                                                        </select>
+                                                        <label for="password{{ $pembimbing->id }}" class="form-label">Password Baru</label>
+                                                        <input type="password" class="form-control" id="password{{ $pembimbing->id }}" name="password" autocomplete="new-password">
+                                                        <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label for="password_confirmation{{ $pembimbing->id }}" class="form-label">Konfirmasi Password Baru</label>
+                                                        <input type="password" class="form-control" id="password_confirmation{{ $pembimbing->id }}" name="password_confirmation" autocomplete="new-password">
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -212,7 +215,7 @@
                         <input type="text" class="form-control" id="nama" name="nama" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <label for="email" class="form-label">Emailllll <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">

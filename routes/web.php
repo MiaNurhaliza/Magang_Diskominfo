@@ -5,7 +5,7 @@ use App\Http\Controllers\User\BiodataController;
 use App\Http\Controllers\User\DokumenController;
 use App\Http\Controllers\User\Statuscontroller;
 use App\Http\Controllers\User\AbsensiController;
-use App\Http\Controllers\User\Logincontroller;
+use App\Http\Controllers\User\LoginController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\LogbookController;
 use App\Http\Controllers\User\LaporanAkhirController;
@@ -65,6 +65,7 @@ Route::middleware(['auth', 'pembimbing'])->prefix('pembimbing')->name('pembimbin
     
     // Delete routes
     Route::delete('/absensi/{absensi}', [PembimbingAbsensiController::class, 'destroy'])->name('absensi.destroy');
+    Route::delete('/logbook/{logbook}', [PembimbingLogbookController::class, 'destroy'])->name('logbook.destroy');
     Route::delete('/laporan-akhir/{laporan}', [PembimbingLaporanAkhirController::class, 'destroy'])->name('laporan-akhir.destroy');
     
     // AJAX routes
@@ -134,6 +135,12 @@ Route::prefix('user')->name('user.')->group(function () {
 });
 
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
 //  Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 //     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -199,7 +206,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/pendaftar', [AdminPendaftarController::class, 'index'])->name('admin.pendaftar');
     Route::get('/absensi', [AdminAbsensiController::class, 'index'])->name('admin.absensi');
-    Route::get('/absensi/{id}', [AdminAbsensiController::class, 'destroy'])->name('admin.absensi.destroy');
+    Route::delete('/absensi/{id}', [AdminAbsensiController::class, 'destroy'])->name('admin.absensi.destroy');
     // Route::get('/izin', [Admin\IzinBackendController::class, 'index'])->name('admin.izin');
     Route::get('/logbook', [LogbookBackendController::class, 'index'])->name('admin.logbook.index');
     Route::delete('/logbook/{id}', [LogbookBackendController::class, 'destroy'])->name('admin.logbook.destroy');
