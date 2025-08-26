@@ -28,7 +28,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Lengkap</th>
-                                    <th>Tanggal Upload</th>
+                                    {{-- <th>Tanggal Upload</th> --}}
                                     <th>Judul Laporan</th>
                                     <th>Status</th>
                                     <th>Laporan</th>
@@ -85,13 +85,9 @@
                                                         <i class="bi bi-check-circle"></i> Setujui
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('pembimbing.laporan-akhir.revise', $laporan->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="revision_note" value="Perlu perbaikan - silakan revisi laporan Anda">
-                                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Kirim laporan untuk revisi?')">
-                                                        <i class="bi bi-arrow-clockwise"></i> Revisi
-                                                    </button>
-                                                </form>
+                                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#reviseModal{{ $laporan->id }}">
+                                                    <i class="bi bi-arrow-clockwise"></i> Revisi
+                                                </button>
                                             @elseif($laporan->status === 'revision')
                                                 <form action="{{ route('pembimbing.laporan-akhir.approve', $laporan->id) }}" method="POST" class="d-inline">
                                                     @csrf

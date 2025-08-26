@@ -43,7 +43,6 @@ public function store(Request $request)
         'surat_permohonan.required' => 'Surat permohonan magang wajib diupload.',
         'surat_permohonan.mimes' => 'Surat permohonan harus berformat PDF.',
         'surat_permohonan.max' => 'Ukuran surat permohonan maksimal 5MB.',
-        'kartu_tanda_mahasiswa.required' => 'Kartu tanda mahasiswa/pelajar wajib diupload.',
         'kartu_tanda_mahasiswa.mimes' => 'Kartu tanda mahasiswa harus berformat PDF.',
         'kartu_tanda_mahasiswa.max' => 'Ukuran kartu tanda mahasiswa maksimal 5MB.',
         'cv.mimes' => 'CV harus berformat PDF.',
@@ -60,7 +59,6 @@ public function store(Request $request)
     
     // Kartu tanda mahasiswa tidak wajib
     $rules['kartu_tanda_mahasiswa'] = 'nullable|mimes:pdf|max:5120';
-    
     $rules['cv'] = 'nullable|mimes:pdf|max:5120';
     $rules['sertifikat'] = 'nullable|mimes:pdf|max:5120';
 

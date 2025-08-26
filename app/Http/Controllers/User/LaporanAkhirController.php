@@ -20,7 +20,6 @@ class LaporanAkhirController extends Controller
     {
         $request->validate([
             'judul_laporan' => 'required|string|max:255',
-            'pembimbing_industri' => 'required|string|max:255',
             'file_laporan' => 'required|file|mimes:pdf|max:5120',
             'file_nilai_magang' => 'required|file|mimes:pdf|max:5120',
         ]);
@@ -40,7 +39,6 @@ class LaporanAkhirController extends Controller
             // Update existing laporan (for revision)
             $existingLaporan->update([
                 'judul_laporan' => $request->judul_laporan,
-                'pembimbing_industri' => $request->pembimbing_industri,
                 'file_laporan' => $laporanPath,
                 'file_nilai_magang' => $nilaiPath,
                 'status' => 'pending',
@@ -52,7 +50,6 @@ class LaporanAkhirController extends Controller
                 'user_id' => Auth::id(),
                 'nama_lengkap' => Auth::user()->name,
                 'judul_laporan' => $request->judul_laporan,
-                'pembimbing_industri' => $request->pembimbing_industri,
                 'file_laporan' => $laporanPath,
                 'file_nilai_magang' => $nilaiPath,
                 'status' => 'pending',

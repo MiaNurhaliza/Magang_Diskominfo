@@ -14,7 +14,6 @@ class LaporanAkhir extends Model
         'user_id',
         'nama_lengkap',
         'judul_laporan',
-        'pembimbing_industri',
         'file_laporan',
         'file_nilai_magang',
         'status',

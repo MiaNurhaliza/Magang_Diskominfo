@@ -27,19 +27,13 @@ use App\Http\Controllers\Pembimbing\LogbookController as PembimbingLogbookContro
 use App\Http\Controllers\Pembimbing\LaporanAkhirController as PembimbingLaporanAkhirController;
 
 
-
+// Landing page untuk guest
 Route::get('/', function () {
     return view('landing.index');
-});
+})->name('landing');
 
-Route::get('/test-mail', function () {
-    Mail::raw('Tes kirim email dari SIMADIS', function ($m) {
-        $m->to('nurhalizamia5@gmail.com')->subject('Tes SIMADIS');
-    });
-    return 'OK';
-});
-
-Route::get('/', function () {
+// Dashboard setelah login
+Route::get('/dashboard', function () {
     if (auth()->user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
     } elseif (auth()->user()->role === 'pembimbing') {
@@ -47,6 +41,7 @@ Route::get('/', function () {
     }
     return redirect()->route('peserta.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 // Admin Routes - Remove duplicate dashboard route
 
